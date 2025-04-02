@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sign Up | Snooker Century{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Global Styles */
+    body {
+        background-color: #f4f4f4;
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+    }
+
+    .signup-container {
+        background-color: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        width: 100%;
+        max-width: 450px;
+        margin: 2rem auto;
+        box-sizing: border-box;
+    }
+
+    .signup-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .signup-header h1 {
+        color: #333;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+    }
+
+    .signup-header p {
+        color: #777;
+        font-size: 1rem;
+    }
+
+    /* Form Group */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #555;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 0.25rem;
+        box-sizing: border-box;
+        font-size: 1rem;
+    }
+
+    .form-control:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+
+    .is-invalid {
+        border-color: #e74c3c;
+    }
+
+    .btn-signup {
+        background-color: #3498db;
+        color: white;
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 0.25rem;
+        font-weight: 500;
+        cursor: pointer;
+        width: 100%;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .btn-signup:hover {
+        background-color: #2980b9;
+        transform: scale(1.05);
+    }
+
+    .form-text {
+        color: #7f8c8d;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .errorlist {
+        color: #e74c3c;
+        list-style-type: none;
+        padding-left: 0;
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .login-link {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+
+    .login-link a {
+        color: #3498db;
+        text-decoration: none;
+    }
+
+    .login-link a:hover {
+        text-decoration: underline;
+    }
+
+    /* Profile Picture */
+    .profile-preview {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 1rem;
+        border: 3px solid #eee;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+        .signup-container {
+            width: 100%;
+            padding: 1.5rem;
+        }
+
+        .signup-header h1 {
+            font-size: 1.75rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group button {
+            font-size: 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .signup-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .btn-signup {
+            font-size: 1rem;
+            padding: 0.75rem 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="signup-container">
+    <div class="signup-header">
+        <h1>Sign Up</h1>
+        <p>Create a new account</p>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="id_username" class="form-label">Username*</label>
+            {{ form.username.errors }}
+            <input type="text" name="username" id="id_username" class="form-control {% if form.username.errors %}is-invalid{% endif %}" value="{{ form.username.value|default:'' }}" required>
+            {% if form.username.help_text %}
+            <div class="form-text">{{ form.username.help_text }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_email" class="form-label">Email*</label>
+            {{ form.email.errors }}
+            <input type="email" name="email" id="id_email" class="form-control {% if form.email.errors %}is-invalid{% endif %}" value="{{ form.email.value|default:'' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="id_password1" class="form-label">Password*</label>
+            {{ form.password1.errors }}
+            <input type="password" name="password1" id="id_password1" class="form-control {% if form.password1.errors %}is-invalid{% endif %}" required>
+            {% if form.password1.help_text %}
+            <div class="form-text">{{ form.password1.help_text }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_password2" class="form-label">Confirm Password*</label>
+            {{ form.password2.errors }}
+            <input type="password" name="password2" id="id_password2" class="form-control {% if form.password2.errors %}is-invalid{% endif %}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="id_first_name" class="form-label">First Name*</label>
+            {{ form.first_name.errors }}
+            <input type="text" name="first_name" id="id_first_name" class="form-control {% if form.first_name.errors %}is-invalid{% endif %}" value="{{ form.first_name.value|default:'' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="id_last_name" class="form-label">Last Name*</label>
+            {{ form.last_name.errors }}
+            <input type="text" name="last_name" id="id_last_name" class="form-control {% if form.last_name.errors %}is-invalid{% endif %}" value="{{ form.last_name.value|default:'' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="id_bio" class="form-label">Bio</label>
+            {{ form.bio.errors }}
+            <textarea name="bio" id="id_bio" class="form-control {% if form.bio.errors %}is-invalid{% endif %}" rows="4">{{ form.bio.value|default:'' }}</textarea>
+            <div class="form-text">A brief description about yourself (optional)</div>
+        </div>
+
+        <div class="form-group">
+            <label for="id_profile_picture" class="form-label">Profile Picture</label>
+            {{ form.profile_picture.errors }}
+            <input type="file" name="profile_picture" id="id_profile_picture" class="form-control {% if form.profile_picture.errors %}is-invalid{% endif %}">
+            <div class="form-text">Upload a profile picture (optional)</div>
+        </div>
+
+        <button type="submit" class="btn-signup">Sign Up</button>
+
+        <div class="login-link">
+            <p>Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+        </div>
+
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://kit.fontawesome.com/YOUR_KIT_ID.js" crossorigin="anonymous"></script>
+{% endblock %}

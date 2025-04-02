@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | Snooker Century Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-header {
+        background-color: #34495e;
+        color: white;
+        padding: 2rem 1rem;
+        margin-bottom: 2rem;
+        border-radius: 0.5rem;
+        text-align: center;
+    }
+
+    .admin-header h1 {
+        margin-bottom: 0.5rem;
+        font-size: 2rem;
+    }
+
+    .form-card {
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+        padding: 2rem;
+    }
+
+    .form-card h2 {
+        margin-bottom: 1.5rem;
+        color: #333;
+        font-size: 1.5rem;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.8rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #555;
+    }
+
+    .btn-submit, .btn-cancel {
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 0.25rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        margin: 0.5rem;
+    }
+
+    .btn-submit {
+        background-color: #3498db;
+        color: white;
+    }
+
+    .btn-submit:hover {
+        background-color: #2980b9;
+        transform: scale(1.05);
+    }
+
+    .btn-cancel {
+        background-color: #95a5a6;
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-cancel:hover {
+        background-color: #7f8c8d;
+        transform: scale(1.05);
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+    }
+
+    .checkbox-group input {
+        margin-right: 0.5rem;
+    }
+
+    .form-text {
+        color: #7f8c8d;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .form-control:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+
+    .errorlist {
+        color: #e74c3c;
+        list-style-type: none;
+        padding-left: 0;
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .profile-preview {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 1rem;
+        border: 3px solid #eee;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    @media (max-width: 768px) {
+        .form-card {
+            padding: 1.5rem;
+        }
+        .btn-submit, .btn-cancel {
+            width: 100%;
+            margin: 0.5rem 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-header text-center">
+    <h1>{{ title }}</h1>
+    <p>{% if 'Create' in title %}Add a new user account{% else %}Modify existing user details{% endif %}</p>
+</div>
+
+<div class="mb-4">
+    <a href="{% url 'admin_user_list' %}" class="btn-cancel">
+        <i class="fas fa-arrow-left"></i> Back to User List
+    </a>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="form-card">
+    <h2>
+        <i class="fas fa-{% if 'Create' in title %}user-plus{% else %}user-edit{% endif %}"></i>
+        {{ title }}
+    </h2>
+
+    {% if user and user.profile_picture %}
+    <div class="text-center mb-4">
+        <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" class="profile-preview">
+        <p class="mb-0">Current Profile Picture</p>
+    </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="id_username" class="form-label">Username*</label>
+                    {{ form.username.errors }}
+                    <input type="text" name="username" id="id_username" class="form-control {% if form.username.errors %}is-invalid{% endif %}" value="{{ form.username.value|default:'' }}" required>
+                    {% if form.username.help_text %}
+                    <div class="form-text">{{ form.username.help_text }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="id_email" class="form-label">Email*</label>
+                    {{ form.email.errors }}
+                    <input type="email" name="email" id="id_email" class="form-control {% if form.email.errors %}is-invalid{% endif %}" value="{{ form.email.value|default:'' }}" required>
+                </div>
+            </div>
+        </div>
+
+        {% if 'Create' in title %}
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="id_password1" class="form-label">Password*</label>
+                    {{ form.password1.errors }}
+                    <input type="password" name="password1" id="id_password1" class="form-control {% if form.password1.errors %}is-invalid{% endif %}" required>
+                    {% if form.password1.help_text %}
+                    <div class="form-text">{{ form.password1.help_text }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="id_password2" class="form-label">Confirm Password*</label>
+                    {{ form.password2.errors }}
+                    <input type="password" name="password2" id="id_password2" class="form-control {% if form.password2.errors %}is-invalid{% endif %}" required>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="id_first_name" class="form-label">First Name*</label>
+                    {{ form.first_name.errors }}
+                    <input type="text" name="first_name" id="id_first_name" class="form-control {% if form.first_name.errors %}is-invalid{% endif %}" value="{{ form.first_name.value|default:'' }}" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="id_last_name" class="form-label">Last Name*</label>
+                    {{ form.last_name.errors }}
+                    <input type="text" name="last_name" id="id_last_name" class="form-control {% if form.last_name.errors %}is-invalid{% endif %}" value="{{ form.last_name.value|default:'' }}" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="id_bio" class="form-label">Bio</label>
+            {{ form.bio.errors }}
+            <textarea name="bio" id="id_bio" class="form-control {% if form.bio.errors %}is-invalid{% endif %}" rows="4">{{ form.bio.value|default:'' }}</textarea>
+            <div class="form-text">A brief description about the user (optional)</div>
+        </div>
+
+        <div class="form-group">
+            <label for="id_profile_picture" class="form-label">Profile Picture</label>
+            {{ form.profile_picture.errors }}
+            <input type="file" name="profile_picture" id="id_profile_picture" class="form-control {% if form.profile_picture.errors %}is-invalid{% endif %}">
+            <div class="form-text">Upload a profile picture (optional)</div>
+        </div>
+
+        <div class="row">
+            {% if 'Edit' in title %}
+            <div class="col-md-6">
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" name="is_active" id="id_is_active" {% if form.is_active.value %}checked{% endif %}>
+                        <label for="id_is_active" class="form-label mb-0">Active</label>
+                    </div>
+                    <div class="form-text">Allow user to log in (uncheck to disable account)</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="mt-4 d-flex justify-content-end">
+            <a href="{% url 'admin_user_list' %}" class="btn-cancel">Cancel</a>
+            <button type="submit" class="btn-submit">{% if 'Create' in title %}Create User{% else %}Save Changes{% endif %}</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://kit.fontawesome.com/YOUR_KIT_ID.js" crossorigin="anonymous"></script>
+{% endblock %}

@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ match.title }} | Snooker Century{% endblock %}
+
+{% block extra_css %}
+<style>
+    .match-container {
+        max-width: 1000px;
+        margin: 2rem auto;
+        padding: 1rem;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .match-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .match-title {
+        color: #2c3e50;
+    }
+
+    .winner-banner {
+        background: #2ecc71;
+        color: white;
+        padding: 1rem;
+        border-radius: 5px;
+        text-align: center;
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 1.5rem;
+    }
+
+    .player-scores {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+    }
+
+    .player-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .player-name {
+        font-weight: bold;
+    }
+
+    .player-score {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #3498db;
+    }
+
+    .potting-form {
+        background: #ecf0f1;
+        border-radius: 10px;
+        padding: 1.5rem;
+    }
+
+    .btn-submit {
+        width: 100%;
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 0.75rem;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .btn-submit:hover {
+        background: #2980b9;
+    }
+
+    .btn-finish {
+        display: block;
+        width: 100%;
+        text-align: center;
+        background: #e74c3c;
+        color: white;
+        padding: 0.75rem;
+        border-radius: 5px;
+        margin-top: 1rem;
+        text-decoration: none;
+    }
+
+    .btn-finish:hover {
+        background: #c0392b;
+    }
+
+    @media (max-width: 768px) {
+        .player-card {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .player-score {
+            margin-top: 0.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="match-container">
+    <div class="match-header">
+        <h1 class="match-title">{{ match.title }}</h1>
+    </div>
+    
+    {% if not match.is_active and highest_scoring_player %}
+    <div class="winner-banner">
+        Winner: {{ highest_scoring_player.player.username }} with {{ highest_scoring_player.total_score }} Score!
+    </div>
+    {% endif %}
+
+     <div class="match-content">
+        <div class="player-scores">
+            <h2>Player Scores</h2>
+            {% for mp in match_players %}
+            <div class="player-card">
+                <div class="player-header">
+                    <span class="player-name">{{ mp.player.username }}</span>
+                    <span class="player-score {% if mp.total_score >= 0 %}positive{% else %}negative{% endif %}">
+                        Total: {{ mp.total_score }}
+                    </span>
+                </div>
+                {% if mp.highest_break != 0 %}
+                <div class="highest-break {% if mp.highest_break >= 0 %}positive{% else %}negative{% endif %}">
+                    Highest Break: {{ mp.highest_break }}
+                </div>
+                {% endif %}
+                <ul class="sequence-list">
+                    {% for sequence in mp.sequences %}
+                    <li class="sequence-item {% if sequence.potted_balls >= 0 %}positive{% else %}negative{% endif %}">
+                        <span>Sequence {{ sequence.sequence_number }}</span>
+                        <span>{{ sequence.potted_balls }} balls</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if match.is_active and match.created_by == request.user %}
+    <div class="potting-form">
+        <h2>Add Potting Sequence</h2>
+        <form method="post" id="potting-form">
+            {% csrf_token %}
+            <label for="id_player_id">Select Player</label>
+            <select name="player_id" id="id_player_id" class="form-control" required>
+                <option value="">Choose a player...</option>
+                {% for mp in match_players %}
+                <option value="{{ mp.player.id }}">{{ mp.player.username }}</option>
+                {% endfor %}
+            </select>
+            <br>
+
+            <label for="id_potted_balls">Number of Balls Potted</label>
+            <input type="number" name="potted_balls" id="id_potted_balls" class="form-control" min="-147" max="147" required>
+            <br>
+            
+            <button type="submit" class="btn-submit">Add Sequence</button>
+        </form>
+        <a href="{% url 'match_finish' match.id %}" class="btn-finish">Finish Match</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

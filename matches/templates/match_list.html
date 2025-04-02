@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Matches | Snooker Century{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 0;
+    }
+
+    .match-list-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .match-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .match-header h1 {
+        color: #2c3e50;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .match-header p {
+        color: #7f8c8d;
+        font-size: 1rem;
+    }
+
+    .match-item {
+        background: #ffffff;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: transform 0.2s, box-shadow 0.3s;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        border-left: 5px solid #3498db;
+    }
+
+    .match-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .match-title {
+        font-weight: bold;
+        color: #2c3e50;
+        font-size: 1.2rem;
+    }
+
+    .match-meta {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .btn-view {
+        background-color: #3498db;
+        color: white;
+        padding: 0.6rem 1.2rem;
+        border-radius: 5px;
+        font-weight: bold;
+        text-align: center;
+        text-decoration: none;
+        transition: background-color 0.3s, transform 0.2s;
+        align-self: flex-start;
+    }
+
+    .btn-view:hover {
+        background-color: #2980b9;
+        transform: scale(1.05);
+    }
+
+    @media (max-width: 768px) {
+        .match-list-container {
+            padding: 1.5rem;
+        }
+
+        .match-item {
+            padding: 1rem;
+        }
+
+        .btn-view {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="match-list-container">
+    <div class="match-header">
+        <h1>My Matches</h1>
+        <p>Here are the matches you are participating in:</p>
+    </div>
+
+    {% if matches %}
+        {% for match in matches %}
+        <div class="match-item">
+            <div class="match-title">{{ match.title }}</div>
+            <div class="match-meta">
+                <span><i class="fas fa-calendar"></i> {{ match.date|date:"F j, Y, g:i a" }}</span>
+                {% if match.location %}
+                <span><i class="fas fa-map-marker-alt"></i> {{ match.location }}</span>
+                {% endif %}
+            </div>
+            <a href="{% url 'match_detail' match.id %}" class="btn-view">View Match</a>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="text-align: center; color: #7f8c8d;">No matches found. You are not currently participating in any matches.</p>
+    {% endif %}
+</div>
+{% endblock %}

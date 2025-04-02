@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Leaderboard | Snooker Century{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background-color: #ecf0f1;
+    }
+
+    .leaderboard-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .leaderboard-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .leaderboard-header h1 {
+        color: #2c3e50;
+        font-size: 2rem;
+        font-weight: bold;
+    }
+
+    .leaderboard-header p {
+        color: #7f8c8d;
+        font-size: 1rem;
+    }
+
+    .leaderboard-table-container {
+        width: 100%;
+        overflow-x: auto; /* Enables horizontal scrolling for smaller screens */
+    }
+
+    .leaderboard-table {
+        width: 100%;
+        border-collapse: collapse;
+        border-radius: 10px;
+        overflow: hidden;
+        background: white;
+    }
+
+    .leaderboard-table th, 
+    .leaderboard-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .leaderboard-table th {
+        background-color: #3498db;
+        color: white;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    .leaderboard-table tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .leaderboard-table tbody tr:hover {
+        background-color: #e3f2fd;
+        transition: 0.3s ease-in-out;
+    }
+
+    .highlight {
+        font-weight: bold;
+        color: #2980b9;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .leaderboard-container {
+            padding: 1rem;
+        }
+
+        .leaderboard-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .leaderboard-header p {
+            font-size: 0.9rem;
+        }
+
+        .leaderboard-table th, 
+        .leaderboard-table td {
+            padding: 0.75rem;
+            font-size: 0.9rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="leaderboard-container">
+    <div class="leaderboard-header">
+        <h1>Leaderboard</h1>
+        <p>See how players rank based on their performance.</p>
+    </div>
+
+    <div class="leaderboard-table-container">
+        <table class="leaderboard-table">
+            <thead>
+                <tr>
+                    <th>Player</th>
+                    <th>Total Matches</th>
+                    <th>Wins</th>
+                    <th>Highest Break</th>
+                    <th>Total Centuries</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in stats %}
+                <tr>
+                    <td class="highlight">{{ stat.player.username }}</td>
+                    <td>{{ stat.total_matches }}</td>
+                    <td>{{ stat.wins }}</td>
+                    <td>{{ stat.highest_break }}</td>
+                    <td>{{ stat.total_centuries }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

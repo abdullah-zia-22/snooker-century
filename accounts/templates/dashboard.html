@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dashboard | Snooker Century{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f4f6f9;
+    }
+    .dashboard-header {
+        background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+        color: white;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border-radius: 10px;
+        text-align: center;
+    }
+    .stats-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease-in-out;
+    }
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+    .stats-card .number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #3498db;
+    }
+    .stats-card .title {
+        color: #7f8c8d;
+        font-size: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-top: 0.5rem;
+    }
+    .quick-actions a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: 0.3s;
+    }
+    .quick-actions a:hover {
+        background-color: #e9ecef;
+    }
+    .table thead th {
+        background: #f8f9fa;
+        font-weight: bold;
+    }
+    .progress {
+        height: 10px;
+        border-radius: 5px;
+    }
+    .canvas-container {
+        position: relative;
+        height: 250px;
+    }
+    @media (max-width: 768px) {
+        .dashboard-header {
+            padding: 1.5rem;
+        }
+        .stats-card .number {
+            font-size: 2rem;
+        }
+        .stats-card .title {
+            font-size: 0.9rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1>Welcome, {{ request.user.first_name|default:request.user.username }}</h1>
+    <p>Track your snooker journey and improve your game</p>
+</div>
+<div class="row">
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="stats-card">
+            <div class="number">{{ stats.total_matches }}</div>
+            <div class="title">Total Matches</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="stats-card">
+            <div class="number">{{ stats.wins }}</div>
+            <div class="title">Wins</div>
+            <div class="progress">
+                <div class="progress-bar bg-success" role="progressbar" style="width: {% widthratio stats.wins stats.total_matches 100 %}%"></div>
+            </div>
+            <small class="text-success">Win Rate: {% widthratio stats.wins stats.total_matches 100 %}%</small>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="stats-card">
+            <div class="number">{{ stats.total_centuries }}</div>
+            <div class="title">Centuries</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="stats-card">
+            <div class="number">{{ stats.highest_break }}</div>
+            <div class="title">Highest Break</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="stats-card mb-4">
+            <h2>Performance Overview</h2>
+            <div class="canvas-container">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card">
+            <div class="quick-actions">
+                <a href="{% url 'match_create' %}" class="btn btn-primary">Record New Match</a>
+                <a href="{% url 'match_list' %}">View All Matches</a>
+                <a href="{% url 'player_stats' request.user.username %}">View Statistics</a>
+                <a href="{% url 'leaderboard' %}">Leaderboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Total Matches', 'Wins', 'Centuries', 'Highest Break'],
+                datasets: [{
+                    label: 'Player Stats',
+                    data: [{{ stats.total_matches }}, {{ stats.wins }}, {{ stats.total_centuries }}, {{ stats.highest_break }}],
+                    backgroundColor: ['#3498db', '#2ecc71', '#e74c3c', '#f39c12'],
+                    borderWidth: 1
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    });
+</script>
+{% endblock %}

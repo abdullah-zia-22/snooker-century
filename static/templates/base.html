@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/static/snooker.jpg" type="image/x-icon"> 
+    <title>{% block title %}Snooker Century{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom global styles -->
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Navbar styling */
+        .navbar {
+            background-color: #2c3e50;
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .navbar-nav .nav-link {
+            color: #ecf0f1;
+            font-weight: 500;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: #3498db;
+        }
+
+        /* Responsive navbar toggle */
+        .navbar-toggler-icon {
+            background-color: #ecf0f1;
+        }
+
+        /* Main content */
+        .main-content {
+            flex: 1;
+        }
+
+        /* Footer styling */
+        footer {
+            margin-top: auto;
+            padding: 1.5rem 0;
+            background-color: #34495e;
+            border-top: 1px solid #ddd;
+        }
+
+        footer p {
+            color: white;
+            font-size: 0.875rem;
+        }
+
+        /* Custom card styles for content sections */
+        .card {
+            border: none;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            background-color: #2980b9;
+            color: white;
+            font-weight: 600;
+        }
+
+        .card-body {
+            background-color: white;
+            padding: 1.5rem;
+        }
+
+        /* Button styling */
+        .btn-primary {
+            background-color: #3498db;
+            border-color: #3498db;
+            font-weight: 500;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            border-color: #2980b9;
+        }
+
+        /* Utilities for responsiveness */
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.25rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            footer p {
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <img src="/static/snooker.jpg" alt="Snooker Century Logo" style="height: 30px; margin-right: 10px;"> 
+            <a class="navbar-brand" href="/">Snooker Century</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Login</a>
+                        </li>
+                        {% comment %}
+                        <!-- Uncomment this when you have a registration URL configured -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'register' %}">Register</a>
+                        </li>
+                        {% endcomment %}
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content container py-4">
+        {% block content %}
+        <!-- Example Card Content Section -->
+        <div class="card mb-4">
+            <div class="card-header">Match Details</div>
+            <div class="card-body">
+                <p>Match info goes here...</p>
+            </div>
+        </div>
+        {% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center">
+        <div class="container">
+            <p class="mb-0">&copy; {% now "Y" %} Snooker Century. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

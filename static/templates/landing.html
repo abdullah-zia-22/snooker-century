@@ -1,0 +1,387 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Snooker Century - Track Your Snooker Progress{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* static/css/landing.css - Combined into the template */
+
+    /* Google Fonts (Optional - for nicer typography) */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+    body {
+        font-family: 'Poppins', sans-serif;
+        color: #333;
+        line-height: 1.6;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-weight: 600;
+        color: #2c3e50; /* Dark Blue-Gray */
+    }
+
+    /* Hero Section */
+    .hero {
+        /* background: linear-gradient(135deg, #1A2980 0%, #26D0CE 100%); */ /* Alt Gradient */
+        background: linear-gradient(135deg, #163a52 0%, #2771a1 100%); /* Darker Blue Gradient */
+        color: white;
+        padding: 6rem 1rem; /* Added horizontal padding */
+        margin-bottom: 0; /* Remove bottom margin if stats section comes next */
+        position: relative;
+        overflow: hidden;
+        min-height: 60vh; /* Ensure it takes up significant height */
+        display: flex;
+        align-items: center; /* Vertically center content */
+        border-radius: 0; /* Remove bottom radius if connecting to next section */
+    }
+
+    .hero::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('https://images.unsplash.com/photo-1608275861636-f412a43e1e2a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+        background-size: cover;
+        background-position: center center; /* Center the image */
+        opacity: 0.15; /* Slightly increased opacity */
+        z-index: 1;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        max-width: 800px; /* Wider content area */
+        margin: 0 auto; /* Center content horizontally */
+        background: rgba(0, 0, 0, 0.2); /* Subtle dark background for text readability */
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    }
+
+    .hero h1 {
+        font-size: 2.8rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #fff; /* Ensure high contrast */
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+    }
+
+    .hero p {
+        font-size: 1.2rem;
+        max-width: 650px;
+        margin: 0 auto 2rem;
+        font-weight: 300;
+        color: #f0f0f0; /* Lighter text color */
+    }
+
+    .btn-cta {
+        padding: 0.8rem 2.2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        background-color: #e74c3c; /* Red */
+        border: none;
+        border-radius: 30px; /* Pill shape */
+        color: white;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block; /* Needed for margin auto */
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .btn-cta:hover {
+        background-color: #c0392b; /* Darker Red */
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        color: white;
+    }
+
+    /* General Section Styling */
+    .section-padding {
+        padding: 5rem 1rem; /* Consistent padding */
+    }
+
+    .section-heading {
+        text-align: center;
+        margin-bottom: 4rem;
+        color: #2c3e50;
+        font-weight: 700;
+        font-size: 2.5rem;
+    }
+
+    /* Features Section */
+    .features {
+        background-color: #ffffff; /* White background */
+    }
+
+    .feature-card {
+        text-align: center;
+        padding: 2.5rem 1.5rem; /* More padding */
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%; /* Ensure cards in a row have same height */
+        border: 1px solid #e9ecef; /* Subtle border */
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start; /* Align content to top */
+    }
+
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    .feature-icon {
+        font-size: 3.5rem; /* Larger icons */
+        margin-bottom: 1.5rem;
+        color: #3498db; /* Blue */
+        line-height: 1; /* Prevent extra space */
+    }
+
+    .feature-card h3 {
+        font-size: 1.4rem;
+        margin-bottom: 1rem;
+        color: #34495e; /* Darker Blue-Gray */
+    }
+
+    .feature-card p {
+        font-size: 0.95rem;
+        color: #555;
+        flex-grow: 1; /* Allow paragraph to take space if needed */
+    }
+
+
+    /* Stats Section */
+    .stats {
+        background-color: #f8f9fa; /* Light Gray */
+        border-top: 1px solid #e9ecef;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .stat-card {
+        text-align: center;
+        padding: 2rem 1rem;
+    }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        color: #3498db; /* Blue */
+        margin-bottom: 1rem;
+    }
+
+    .stat-number {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #2980b9; /* Stronger Blue */
+        margin-bottom: 0.5rem;
+        line-height: 1.2;
+    }
+
+    .stat-label {
+        font-size: 1.1rem;
+        color: #555;
+        font-weight: 400;
+    }
+
+    /* Final CTA Section */
+    .final-cta {
+        background: #ffffff; /* White background */
+        border-radius: 0; /* Remove radius if it's the last section */
+        margin-bottom: 0;
+    }
+
+    .final-cta h2 {
+        margin-bottom: 1rem;
+    }
+
+    .final-cta p {
+        max-width: 600px;
+        margin: 0 auto 2rem;
+        color: #555;
+    }
+
+    /* Testimonials Section (Example - Add if needed) */
+    .testimonials {
+        background-color: #eef5f9; /* Very light blue */
+    }
+
+    .testimonial {
+        background-color: white;
+        border-radius: 8px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        margin-bottom: 2rem;
+        border-left: 5px solid #3498db; /* Accent border */
+    }
+
+    .testimonial-text {
+        font-style: italic;
+        margin-bottom: 1.5rem;
+        color: #444;
+        font-size: 1.05rem;
+    }
+
+    .testimonial-author {
+        font-weight: 600;
+        color: #3498db; /* Blue */
+        text-align: right;
+    }
+
+    .testimonial-author::before {
+        content: "— "; /* Em dash before author */
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 991.98px) {
+        .hero {
+            padding: 5rem 1rem;
+            min-height: 50vh;
+        }
+        .hero h1 {
+            font-size: 2.5rem;
+        }
+        .hero p {
+            font-size: 1.1rem;
+        }
+        .section-heading {
+            font-size: 2.2rem;
+            margin-bottom: 3rem;
+        }
+        .stat-number {
+            font-size: 2.5rem;
+        }
+        .stat-label {
+            font-size: 1rem;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .hero {
+            padding: 4rem 1rem;
+            text-align: center; /* Center text on smaller screens */
+        }
+        .hero h1 {
+            font-size: 2.2rem;
+        }
+        .hero p {
+            font-size: 1rem;
+            max-width: 90%;
+        }
+        .btn-cta {
+            padding: 0.7rem 1.8rem;
+            font-size: 1rem;
+        }
+        .section-padding {
+            padding: 3.5rem 1rem;
+        }
+        .section-heading {
+            font-size: 2rem;
+            margin-bottom: 2.5rem;
+        }
+        .feature-card {
+            margin-bottom: 1.5rem; /* Ensure spacing between stacked cards */
+        }
+         .stat-card {
+            margin-bottom: 1.5rem; /* Space out stats when stacked */
+        }
+        .stat-number {
+            font-size: 2.2rem;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .hero {
+            min-height: 40vh;
+        }
+         .hero h1 {
+            font-size: 1.9rem;
+        }
+         .hero p {
+            font-size: 0.95rem;
+        }
+        .feature-icon {
+            font-size: 3rem;
+        }
+        .feature-card h3 {
+            font-size: 1.2rem;
+        }
+        .final-cta h2 {
+            font-size: 1.8rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero text-center">
+    <div class="container hero-content">
+        <h1>Master Your Snooker Game</h1> <p>Snooker Century helps you record your matches, track centuries, analyze performance, and compare stats with fellow players.</p> {% if user.is_authenticated %}
+            <a href="{% url 'dashboard' %}" class="btn btn-cta">Go to Dashboard</a> {% else %}
+            <a href="{% url 'login' %}" class="btn btn-cta">Get Started <i class="fas fa-arrow-right ms-2"></i></a> {% endif %}
+        </div>
+</section>
+
+<section class="features section-padding">
+    <div class="container">
+        <h2 class="section-heading">Why Choose Snooker Century?</h2>
+        <div class="row justify-content-center">
+            <div class="col-lg-4 col-md-6 mb-4 d-flex align-items-stretch">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-chart-line"></i></div> <h3>Advanced Statistics</h3>
+                    <p>Track centuries, high breaks, frame scores, win rates, and performance metrics. Analyze your progress over time.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-4 d-flex align-items-stretch">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-users"></i></div> <h3>Player vs Player</h3>
+                    <p>Record matches against opponents, view head-to-head records, and compare your stats within your club or group.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-4 d-flex align-items-stretch">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-mobile-alt"></i></div> <h3>Access Anywhere</h3>
+                    <p>Log in from any device – desktop, tablet, or mobile. Access your snooker stats wherever you are.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="stats section-padding">
+    <div class="container">
+        <h2 class="section-heading">Join the Community</h2> <div class="row">
+            <div class="col-md-4 mb-4 mb-md-0">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-user-friends"></i></div> <div class="stat-number">{{ player_count|default:"0" }}</div>
+                    <div class="stat-label">Active Players</div> </div>
+            </div>
+            <div class="col-md-4 mb-4 mb-md-0">
+                <div class="stat-card">
+                     <div class="stat-icon"><i class="fas fa-trophy"></i></div> <div class="stat-number">{{ match_count|default:"0" }}</div>
+                    <div class="stat-label">Matches Tracked</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                     <div class="stat-icon"><i class="fas fa-medal"></i></div> <div class="stat-number">{{ century_count|default:"0" }}</div>
+                    <div class="stat-label">Centuries Recorded</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="final-cta section-padding">
+    <div class="container text-center">
+        <h2 class="mb-3">Ready to Elevate Your Snooker Game?</h2> <p class="mb-4 lead">Join Snooker Century today, start tracking your progress, and achieve your highest breaks.</p> {% if user.is_authenticated %}
+             <a href="{% url 'dashboard' %}" class="btn btn-cta">My Dashboard <i class="fas fa-tachometer-alt ms-2"></i></a>
+        {% else %}
+             <a href="{% url 'login' %}" class="btn btn-cta">Sign In / Sign Up <i class="fas fa-user-plus ms-2"></i></a>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

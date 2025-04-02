@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Head-to-Head: {{ player1.username }} vs {{ player2.username }} | Snooker Century{% endblock %}
+
+{% block extra_css %}
+<style>
+    .head-to-head-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .head-to-head-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .head-to-head-header h1 {
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .head-to-head-header p {
+        color: #7f8c8d;
+    }
+
+    .stats-section {
+        margin-bottom: 2rem;
+    }
+
+    .stats-title {
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+
+    .stats-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .stats-item {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .stats-item:last-child {
+        border-bottom: none;
+    }
+
+    .match-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .match-item:last-child {
+        border-bottom: none;
+    }
+
+    .match-title {
+        font-weight: 500;
+        color: #2c3e50;
+    }
+
+    .match-date {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="head-to-head-container">
+    <div class="head-to-head-header">
+        <h1>Head-to-Head: {{ player1.username }} vs {{ player2.username }}</h1>
+        <p>Statistics and match history between the two players.</p>
+    </div>
+
+    <div class="stats-section">
+        <h2 class="stats-title">Head-to-Head Statistics</h2>
+        <ul class="stats-list">
+            <li class="stats-item">
+                <strong>{{ player1.username }}</strong> Wins: {{ stats.player1_wins }} 
+                - <strong>{{ player2.username }}</strong> Wins: {{ stats.player2_wins }}
+            </li>
+            <li class="stats-item">Total Matches: {{ stats.total_matches }}</li>
+        </ul>
+    </div>
+
+    <div class="recent-matches">
+        <h2 class="stats-title">Recent Matches</h2>
+        {% if matches %}
+            <ul class="stats-list">
+                {% for match in matches %}
+                <li class="match-item">
+                    <span class="match-title">{{ match.title }}</span>
+                    <span class="match-date">{{ match.date|date:"F j, Y" }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No recent matches found between these players.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

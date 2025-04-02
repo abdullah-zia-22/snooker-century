@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ player.username }}'s Stats | Snooker Century{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 0;
+    }
+
+    .stats-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .stats-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .stats-header h1 {
+        color: #34495e;
+    }
+
+    .stats-header p {
+        color: #7f8c8d;
+    }
+
+    .stats-section, .recent-matches, .head-to-head-stats {
+        margin-bottom: 2rem;
+    }
+
+    .stats-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #2c3e50;
+        border-bottom: 3px solid #3498db;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .stats-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .stats-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.8rem;
+        background: #ecf0f1;
+        margin-bottom: 0.5rem;
+        border-radius: 5px;
+        font-size: 1rem;
+    }
+
+    .stats-item span {
+        color: #2c3e50;
+        font-weight: bold;
+    }
+
+    .match-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.8rem;
+        background: #f1f3f4;
+        margin-bottom: 0.5rem;
+        border-radius: 5px;
+    }
+
+    .match-title {
+        font-weight: bold;
+    }
+
+    .match-date {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+    }
+
+    .btn-view {
+        display: inline-block;
+        padding: 0.6rem 1rem;
+        background-color: #3498db;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: 0.3s ease;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .btn-view:hover {
+        background-color: #2980b9;
+    }
+
+    @media (max-width: 768px) {
+        .stats-container {
+            padding: 1rem;
+        }
+
+        .stats-item, .match-item {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .btn-view {
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="stats-container">
+    <div class="stats-header">
+        <h1>{{ player.username }}'s Statistics</h1>
+        <p>Explore performance insights for {{ player.username }}</p>
+    </div>
+
+    <div class="stats-section">
+        <h2 class="stats-title">Player Stats</h2>
+        <ul class="stats-list">
+            <li class="stats-item">Total Matches: <span>{{ stats.total_matches }}</span></li>
+            <li class="stats-item">Wins: <span>{{ stats.wins }}</span></li>
+            <li class="stats-item">Highest Break: <span>{{ stats.highest_break }}</span></li>
+            <li class="stats-item">Total Centuries: <span>{{ stats.total_centuries }}</span></li>
+        </ul>
+    </div>
+
+    <div class="recent-matches">
+        <h2 class="stats-title">Recent Matches</h2>
+        {% if recent_matches %}
+            <ul class="stats-list">
+                {% for match in recent_matches %}
+                <li class="match-item">
+                    <span class="match-title">{{ match.match.title }}</span>
+                    <span class="match-date">{{ match.match.date|date:"F j, Y" }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No recent matches found.</p>
+        {% endif %}
+    </div>
+
+    <div class="head-to-head-stats">
+        <h2 class="stats-title">Head-to-Head Statistics</h2>
+        {% if player_vs_player_stats %}
+            <ul class="stats-list">
+                {% for stat in player_vs_player_stats %}
+                <li class="stats-item">
+                    <span>
+                        {% if player.username == stat.player1.username %}
+                            {{ stat.player1.username }} vs {{ stat.player2.username }}: {{ stat.player1_wins }} - {{ stat.player2_wins }}
+                        {% else %}
+                            {{ stat.player2.username }} vs {{ stat.player1.username }}: {{ stat.player2_wins }} - {{ stat.player1_wins }}
+                        {% endif %}
+                    </span>
+                    <a href="{% url 'player_vs_player' stat.player1.username stat.player2.username %}" class="btn-view">View Statistics</a>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No head-to-head statistics found.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Finish Match: {{ match.title }} | Snooker Century{% endblock %}
+
+{% block extra_css %}
+<style>
+    .match-finish-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .match-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .match-header h1 {
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        font-size: 1.75rem;
+    }
+
+    .match-header p {
+        color: #7f8c8d;
+        font-size: 1rem;
+    }
+
+    .player-list {
+        margin-bottom: 2rem;
+    }
+
+    .player-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid #eee;
+        font-size: 1rem;
+    }
+
+    .player-name {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .player-item span {
+        color: #7f8c8d;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #2c3e50;
+        font-weight: 500;
+    }
+
+    .btn-finish {
+        background-color: #2ecc71;
+        color: white;
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 0.25rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.2s ease;
+        width: 100%;
+        font-size: 1.1rem;
+    }
+
+    .btn-finish:hover {
+        background-color: #27ae60;
+        transform: translateY(-2px);
+    }
+
+    .alert {
+        padding: 1rem;
+        border-radius: 0.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .alert-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+        .match-finish-container {
+            padding: 1.5rem;
+        }
+
+        .match-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .match-header p {
+            font-size: 0.875rem;
+        }
+
+        .player-item {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f1f1f1;
+        }
+
+        .player-item span {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-finish {
+            font-size: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="match-finish-container">
+    <div class="match-header">
+        <h1>Finish Match: {{ match.title }}</h1>
+        <p>Declare the winner and finish the match</p>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="player-list">
+        <h2>Players</h2>
+        {% for mp in match_players %}
+        <div class="player-item">
+            <span class="player-name">{{ mp.player.username }}</span>
+            <span>Score: {{ mp.total_score }}</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn-finish">Finish Match</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Create Match | Snooker Century{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background-color: #f4f6f9;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .match-form-container {
+        max-width: 600px;
+        margin: 3rem auto;
+        padding: 2rem;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .match-form-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .match-form-header h1 {
+        color: #2c3e50;
+        font-size: 1.8rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .match-form-header p {
+        color: #7f8c8d;
+        font-size: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #34495e;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #dcdde1;
+        border-radius: 8px;
+        transition: 0.3s;
+        font-size: 1rem;
+    }
+
+    .form-control:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+    }
+
+    .player-selection {
+        border: 1px solid #dcdde1;
+        border-radius: 8px;
+        padding: 1rem;
+        max-height: 250px;
+        overflow-y: auto;
+        background: #fafafa;
+    }
+
+    .player-checkbox {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .player-checkbox input {
+        margin-right: 10px;
+    }
+
+    .btn-submit, .btn-cancel {
+        display: block;
+        width: 100%;
+        text-align: center;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .btn-submit {
+        background: #3498db;
+        color: white;
+        margin-top: 1rem;
+    }
+
+    .btn-submit:hover {
+        background: #2980b9;
+    }
+
+    .btn-cancel {
+        background: #bdc3c7;
+        color: white;
+        margin-top: 10px;
+    }
+
+    .btn-cancel:hover {
+        background: #95a5a6;
+    }
+
+    .errorlist {
+        color: #e74c3c;
+        list-style-type: none;
+        padding-left: 0;
+        font-size: 0.9rem;
+    }
+
+    .alert {
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        text-align: center;
+        font-size: 1rem;
+    }
+
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .alert-error {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 0.25rem;
+        transition: border-color 0.2s;
+        font-size: 1rem;
+        box-sizing: border-box; /* Ensures proper width calculations */
+    }
+    
+    textarea.form-control {
+        resize: vertical;
+        min-height: 120px; /* Prevents it from being too small */
+        max-height: 300px; /* Keeps it from growing too large */
+    }
+    
+    /* Ensure responsiveness on smaller screens */
+    @media (max-width: 768px) {
+        .match-form-container {
+            padding: 1.5rem;
+        }
+    
+        textarea.form-control {
+            min-height: 150px; /* Increases default height for better usability */
+        }
+    }
+    
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="match-form-container">
+    <div class="match-form-header">
+        <h1>Create New Match</h1>
+        <p>Set up a new snooker match and invite players</p>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="id_title" class="form-label">Match Title*</label>
+            {{ form.title.errors }}
+            {{ form.title }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_location" class="form-label">Location</label>
+            {{ form.location.errors }}
+            {{ form.location }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_notes" class="form-label">Notes</label>
+            {{ form.notes.errors }}
+            {{ form.notes }}
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Select Players*</label>
+            {{ form.players.errors }}
+            <div class="player-selection">
+                {% for checkbox in form.players %}
+                <div class="player-checkbox">
+                    {{ checkbox }}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <button type="submit" class="btn-submit">Create Match</button>
+        <a href="{% url 'match_list' %}" class="btn-cancel">Cancel</a>
+    </form>
+</div>
+{% endblock %}

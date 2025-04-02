@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Login | Snooker Century{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-container {
+        max-width: 400px; /* Reduced max-width for better mobile view */
+        margin: 2rem auto; /* Reduced margin for smaller screens */
+        padding: 2rem;
+        border-radius: 12px; /* Smoother corners */
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* More subtle shadow */
+        background-color: #f9f9f9; /* Light background */
+        transition: box-shadow 0.3s ease; /* Smooth transition for hover effects */
+    }
+
+    .login-container:hover {
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 2.5rem; /* Increased margin */
+    }
+
+    .login-header h1 {
+        color: #333; /* Darker color for heading */
+        font-weight: 700; /* Bold heading */
+        margin-bottom: 0.5rem; /* Spacing between heading and paragraph */
+    }
+
+    .login-header p {
+        color: #777; /* Lighter color for paragraph */
+        font-size: 1rem; /* Adjusted font size */
+    }
+
+    .login-logo {
+        width: 90px; /* Slightly larger logo */
+        height: 90px;
+        margin-bottom: 1.5rem; /* Increased margin */
+        border-radius: 50%; /* Circular logo */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Logo shadow */
+    }
+
+    .form-group {
+        margin-bottom: 1.8rem; /* Increased spacing */
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #555;
+        font-weight: 600;
+    }
+
+    .btn-cta {
+        padding: 0.8rem 2.2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        background-color: #e74c3c; /* Red */
+        border: none;
+        border-radius: 30px; /* Pill shape */
+        color: white;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block; /* Needed for margin auto */
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .btn-cta:hover {
+        background-color: #c0392b; /* Darker Red */
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        color: white;
+    }
+
+
+    .form-control {
+        border-radius: 8px; /* Smoother corners */
+        padding: 14px; /* Increased padding */
+        border: 1px solid #ddd;
+        width: 100%;
+        font-size: 1rem;
+        transition: border-color 0.3s ease; /* Smooth border transition */
+    }
+
+    .form-control:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+
+    .btn-login {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 8px; /* Smoother corners */
+        padding: 14px; /* Increased padding */
+        font-size: 1rem;
+        width: 100%;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease; /* Added transform transition */
+    }
+
+    .btn-login:hover {
+        background-color: #2980b9;
+        transform: translateY(-2px); /* Slight lift on hover */
+    }
+
+    .login-footer {
+        text-align: center;
+        margin-top: 2rem; /* Increased margin */
+    }
+
+    .login-footer a {
+        color: #3498db;
+        text-decoration: none;
+        transition: color 0.3s ease; /* Smooth color transition */
+    }
+
+    .login-footer a:hover {
+        text-decoration: underline;
+        color: #2980b9;
+    }
+
+    .remember-me {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem; /* Increased spacing */
+    }
+
+    .remember-me input {
+        margin-right: 8px;
+    }
+
+    @media (max-width: 768px) {
+        .login-container {
+            padding: 1.5rem; /* Reduced padding for smaller screens */
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-header">
+        {% if site_logo %}
+            <img src="{% static site_logo %}" alt="Snooker Century Logo" class="login-logo">
+        {% endif %}
+        <h1>Welcome Back</h1>
+        <p>Sign in to your account</p>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="id_username" class="form-label">Username</label>
+            <input type="text" name="username" id="id_username" class="form-control" required autofocus>
+        </div>
+
+        <div class="form-group">
+            <label for="id_password" class="form-label">Password</label>
+            <input type="password" name="password" id="id_password" class="form-control" required>
+        </div>
+
+        <div class="remember-me">
+            <input type="checkbox" name="remember" id="id_remember">
+            <label for="id_remember">Remember me</label>
+        </div>
+
+        <button type="submit" class="btn-login">Sign In</button>
+
+        <input type="hidden" name="next" value="{{ next }}">
+    </form>
+
+    <div class="login-footer">
+        <p>Forgot your password? Contact an administrator.</p>
+    </div>
+
+    <div class="mb-4">
+        <a href="{% url 'sign_up' %}" class="btn btn-cta">Sign Up <i class="fas fa-user-plus ms-2"></i></a>
+    </div>
+
+</div>
+{% endblock %}
