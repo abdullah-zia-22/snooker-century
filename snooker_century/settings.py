@@ -83,7 +83,6 @@ database_name=os.getenv('database_name')
 database_user=os.getenv('database_user')
 database_password=os.getenv('database_password')
 database_host=os.getenv('database_host')
-database_port=os.getenv('database_port')
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
@@ -94,8 +93,7 @@ DATABASES = {
         'NAME': database_name,
         'USER': database_user,
         'PASSWORD': database_password,
-        'HOST': database_host,
-        'PORT': database_port
+        'HOST': database_host
     }
 }
 
