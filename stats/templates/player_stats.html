@@ -123,7 +123,7 @@
 <div class="stats-container">
     <div class="stats-header">
         <h1>{{ player.username }}'s Statistics</h1>
-        <p>Explore performance insights for {{ player.username }}</p>
+        <p>Explore performance insights for {{ player.first_name }}</p>
     </div>
 
     <div class="stats-section">
@@ -160,9 +160,9 @@
                 <li class="stats-item">
                     <span>
                         {% if player.username == stat.player1.username %}
-                            {{ stat.player1.username }} vs {{ stat.player2.username }}: {{ stat.player1_wins }} - {{ stat.player2_wins }}
+                            {{ stat.player1.first_name }} vs {{ stat.player2.first_name }}: {{ stat.player1_wins }} - {{ stat.player2_wins }}
                         {% else %}
-                            {{ stat.player2.username }} vs {{ stat.player1.username }}: {{ stat.player2_wins }} - {{ stat.player1_wins }}
+                            {{ stat.player2.first_name }} vs {{ stat.player1.first_name }}: {{ stat.player2_wins }} - {{ stat.player1_wins }}
                         {% endif %}
                     </span>
                     <a href="{% url 'player_vs_player' stat.player1.username stat.player2.username %}" class="btn-view">View Statistics</a>

@@ -116,7 +116,7 @@
     
     {% if not match.is_active and highest_scoring_player %}
     <div class="winner-banner">
-        Winner: {{ highest_scoring_player.player.username }} with {{ highest_scoring_player.total_score }} Score!
+        Winner: {{ highest_scoring_player.player.first_name }} with {{ highest_scoring_player.total_score }} Score!
     </div>
     {% endif %}
 
@@ -126,7 +126,7 @@
             {% for mp in match_players %}
             <div class="player-card">
                 <div class="player-header">
-                    <span class="player-name">{{ mp.player.username }}</span>
+                    <span class="player-name">{{ mp.player.first_name }}</span>
                     <span class="player-score {% if mp.total_score >= 0 %}positive{% else %}negative{% endif %}">
                         Total: {{ mp.total_score }}
                     </span>
@@ -158,7 +158,7 @@
             <select name="player_id" id="id_player_id" class="form-control" required>
                 <option value="">Choose a player...</option>
                 {% for mp in match_players %}
-                <option value="{{ mp.player.id }}">{{ mp.player.username }}</option>
+                <option value="{{ mp.player.id }}">{{ mp.player.first_name }}</option>
                 {% endfor %}
             </select>
             <br>

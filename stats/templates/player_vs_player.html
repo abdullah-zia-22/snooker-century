@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Head-to-Head: {{ player1.username }} vs {{ player2.username }} | Snooker Century{% endblock %}
+{% block title %}Head-to-Head: {{ player1.first_name }} vs {{ player2.first_name }} | Snooker Century{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -78,7 +78,7 @@
 {% block content %}
 <div class="head-to-head-container">
     <div class="head-to-head-header">
-        <h1>Head-to-Head: {{ player1.username }} vs {{ player2.username }}</h1>
+        <h1>Head-to-Head: {{ player1.first_name }} vs {{ player2.first_name }}</h1>
         <p>Statistics and match history between the two players.</p>
     </div>
 
@@ -86,8 +86,8 @@
         <h2 class="stats-title">Head-to-Head Statistics</h2>
         <ul class="stats-list">
             <li class="stats-item">
-                <strong>{{ player1.username }}</strong> Wins: {{ stats.player1_wins }} 
-                - <strong>{{ player2.username }}</strong> Wins: {{ stats.player2_wins }}
+                <strong>{{ player1.first_name }}</strong> Wins: {{ stats.player1_wins }} 
+                - <strong>{{ player2.first_name }}</strong> Wins: {{ stats.player2_wins }}
             </li>
             <li class="stats-item">Total Matches: {{ stats.total_matches }}</li>
         </ul>
