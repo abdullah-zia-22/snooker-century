@@ -119,7 +119,7 @@
             <tbody>
                 {% for stat in stats %}
                 <tr>
-                    <td class="highlight">{{ stat.player.first_name }}</td>
+                    <td class="highlight">{{ stat.player.first_name + stat.player.last_name }}</td>
                     <td>{{ stat.total_matches }}</td>
                     <td>{{ stat.wins }}</td>
                     <td>{{ stat.highest_break }}</td>
