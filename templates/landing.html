@@ -19,14 +19,35 @@
         </div>
       </div>
       <div class="col-lg-5 d-none d-md-block">
-        <div class="hero-card" aria-hidden="true">
+        <div class="hero-card">
           <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="chip chip-live">Live</span>
-            <span class="small" style="color:rgba(255,255,255,.6)">Example scoreboard</span>
+            {% if live_match %}
+              <span class="chip chip-live">Live</span>
+              <span class="small" style="color:rgba(255,255,255,.6)">{{ live_match.title }}</span>
+            {% else %}
+              <span class="small" style="color:rgba(255,255,255,.6)">Scoreboard</span>
+            {% endif %}
           </div>
-          <div class="mini"><span>Player one</span><b>87</b></div>
-          <div class="mini"><span>Player two</span><b>64</b></div>
-          <div class="mini"><span>Highest break</span><span class="break-badge"><i class="bi bi-lightning-charge-fill"></i> 104 century</span></div>
+          {% if live_match %}
+            {% for player in live_players %}
+              <div class="mini">
+                <span>{{ player.player.display_name }}</span>
+                <b>{{ player.live_total }}</b>
+              </div>
+              <div class="mini">
+                <span>Best break</span>
+                {% if player.live_best %}
+                  <span class="break-badge"><i class="bi bi-lightning-charge-fill"></i> {{ player.live_best }}</span>
+                {% else %}
+                  <span class="small" style="color:rgba(255,255,255,.6)">—</span>
+                {% endif %}
+              </div>
+            {% empty %}
+              <p class="mb-0">No players have joined this match yet.</p>
+            {% endfor %}
+          {% else %}
+            <p class="mb-0">No matches in progress right now.</p>
+          {% endif %}
         </div>
       </div>
     </div>

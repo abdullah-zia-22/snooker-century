@@ -61,6 +61,31 @@ class PublicPagesTests(TestCase):
         self.assertEqual(response.context["player_count"], 2)
         self.assertEqual(response.context["match_count"], 1)
         self.assertEqual(response.context["century_count"], 2)
+        self.assertIsNone(response.context["live_match"])
+
+    def test_landing_page_shows_latest_live_match_scores(self):
+        a, b = make_user("alice"), make_user("bob")
+        match = Match.objects.create(title="Friday final", created_by=a)
+        MatchPlayer.objects.bulk_create(
+            [MatchPlayer(match=match, player=a), MatchPlayer(match=match, player=b)]
+        )
+        add_sequence(match, a.id, 35)
+        add_sequence(match, a.id, 42)
+        add_sequence(match, b.id, 20)
+
+        response = self.client.get(reverse("home"))
+
+        self.assertEqual(response.context["live_match"], match)
+        self.assertEqual(
+            [
+                (player.player.display_name, player.live_total, player.live_best)
+                for player in response.context["live_players"]
+            ],
+            [("Alice Player", 77, 42), ("Bob Player", 20, 20)],
+        )
+        self.assertContains(response, "Friday final")
+        self.assertContains(response, "77")
+        self.assertNotContains(response, "Example scoreboard")
 
     def test_landing_redirects_logged_in_users_consistently(self):
         make_user("staffer", is_staff=True)  # staff flag alone must NOT send you to the admin portal
