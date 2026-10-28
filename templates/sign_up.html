@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Sign up | Snooker Century{% endblock %}
+
+{% block content %}
+<div class="auth">
+  <aside class="auth-aside">
+    <div class="eyebrow">Join the club</div>
+    <h2>Your game, in numbers.</h2>
+    <p>Create a free account to record matches, chase centuries and climb the leaderboard.</p>
+    <ul>
+      <li><i class="bi bi-lightning-charge-fill"></i> Quick score pad built for phones</li>
+      <li><i class="bi bi-bar-chart-line-fill"></i> Automatic win rate and break stats</li>
+      <li><i class="bi bi-shield-check"></i> Secure sign-in, no spam</li>
+    </ul>
+  </aside>
+
+  <div class="auth-main">
+    <div class="auth-card">
+      <h1 class="mb-1">Create account</h1>
+      <p class="text-muted mb-4">It only takes a minute.</p>
+
+      <form method="post" enctype="multipart/form-data" novalidate data-once>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger" role="alert"><i class="bi bi-exclamation-triangle-fill"></i><div>{{ form.non_field_errors.0 }}</div></div>
+        {% endif %}
+
+        <div class="row g-3">
+          <div class="col-sm-6">{% include "partials/field.html" with field=form.first_name %}</div>
+          <div class="col-sm-6">{% include "partials/field.html" with field=form.last_name %}</div>
+        </div>
+        {% include "partials/field.html" with field=form.username %}
+        {% include "partials/field.html" with field=form.email %}
+        {% include "partials/field.html" with field=form.password1 %}
+        {% include "partials/field.html" with field=form.password2 %}
+        {% include "partials/field.html" with field=form.bio %}
+        {% include "partials/field.html" with field=form.profile_picture %}
+
+        <button type="submit" class="btn btn-primary btn-lg btn-block mt-2">Create account</button>
+      </form>
+
+      <p class="text-center text-muted mt-4 mb-0">Already have an account? <a href="{% url 'login' %}" class="fw-bold">Log in</a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | Snooker Century{% endblock %}
+
+{% block content %}
+<div class="container page">
+  <div class="page-head">
+    <div>
+      <div class="eyebrow">Dashboard</div>
+      <h1>Hi, {{ user.first_name|default:user.username }} 👋</h1>
+      <p>Here's how your game is shaping up.</p>
+    </div>
+    <div class="page-actions">
+      <a href="{% url 'match_create' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New match</a>
+    </div>
+  </div>
+
+  <div class="kpis mb-4">
+    <div class="kpi"><div class="kpi-icon"><i class="bi bi-flag-fill"></i></div><div class="kpi-value">{{ stats.total_matches }}</div><div class="kpi-label">Matches played</div></div>
+    <div class="kpi k-green"><div class="kpi-icon"><i class="bi bi-trophy-fill"></i></div><div class="kpi-value">{{ stats.wins }}</div><div class="kpi-label">Wins</div></div>
+    <div class="kpi k-gold"><div class="kpi-icon"><i class="bi bi-lightning-charge-fill"></i></div><div class="kpi-value">{{ stats.total_centuries }}</div><div class="kpi-label">Centuries</div></div>
+    <div class="kpi k-navy"><div class="kpi-icon"><i class="bi bi-bullseye"></i></div><div class="kpi-value">{{ stats.highest_break }}</div><div class="kpi-label">Highest break</div></div>
+  </div>
+
+  <div class="row g-3 g-lg-4">
+    <div class="col-lg-8">
+      {% if live_matches %}
+      <section class="panel mb-3 mb-lg-4" aria-labelledby="live-h">
+        <h2 class="panel-title" id="live-h">Matches in progress <span class="chip chip-live">{{ live_matches|length }} live</span></h2>
+        <ul class="rows">
+          {% for row in live_matches %}
+          <li>
+            <a class="row-item" href="{% url 'match_detail' row.match.id %}">
+              <div class="grow"><div class="t">{{ row.match.title }}</div><div class="s">{{ row.match.date|date:"D j M, g:i a" }}{% if row.match.location %} · {{ row.match.location }}{% endif %}</div></div>
+              <span class="btn btn-primary btn-sm">Resume</span>
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+      </section>
+      {% endif %}
+
+      <section class="panel" aria-labelledby="recent-h">
+        <h2 class="panel-title" id="recent-h">Recent matches <a class="small fw-bold" href="{% url 'match_list' %}">View all</a></h2>
+        {% if recent_matches %}
+        <ul class="rows">
+          {% for row in recent_matches %}
+          <li>
+            <a class="row-item" href="{% url 'match_detail' row.match.id %}">
+              <div class="grow"><div class="t">{{ row.match.title }}</div><div class="s">{{ row.match.date|date:"D j M Y" }}{% if row.match.location %} · {{ row.match.location }}{% endif %}</div></div>
+              {% include "partials/result_chip.html" with result=row.result %}
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <div class="empty"><i class="bi bi-flag"></i><h3>No matches yet</h3><p class="mb-3">Start your first match and your stats will appear here.</p><a href="{% url 'match_create' %}" class="btn btn-primary">Record a match</a></div>
+        {% endif %}
+      </section>
+    </div>
+
+    <div class="col-lg-4">
+      <section class="panel mb-3 mb-lg-4" aria-labelledby="wr-h">
+        <h2 class="panel-title" id="wr-h">Win rate</h2>
+        <div class="d-flex align-items-center gap-4">
+          <div class="ring" style="--p: {{ stats.win_rate }}" role="img" aria-label="Win rate {{ stats.win_rate }} percent"><div><b>{{ stats.win_rate }}%</b><small>win rate</small></div></div>
+          <div>
+            <div class="fw-bold fs-5 tabular">{{ stats.wins }} win{{ stats.wins|pluralize }}</div>
+            <div class="text-muted small">from {{ stats.total_matches }} finished match{{ stats.total_matches|pluralize:"es" }}</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="qa-h">
+        <h2 class="panel-title" id="qa-h">Quick actions</h2>
+        <div class="actions">
+          <a class="action" href="{% url 'match_create' %}"><i class="bi bi-plus-circle"></i> Record a new match <i class="bi bi-chevron-right chev"></i></a>
+          <a class="action" href="{% url 'my_stats' %}"><i class="bi bi-bar-chart-line"></i> My statistics <i class="bi bi-chevron-right chev"></i></a>
+          <a class="action" href="{% url 'leaderboard' %}"><i class="bi bi-trophy"></i> Leaderboard <i class="bi bi-chevron-right chev"></i></a>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+{% endblock %}

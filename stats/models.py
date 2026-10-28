@@ -1,96 +1,80 @@
-from django.db import models
 from django.conf import settings
-from django.db.models import Sum, Avg, Max, Count
+from django.db import models
+from django.db.models import Max
+
 
 class PlayerStats(models.Model):
-    """
-    Model for storing player statistics
-    """
-    player = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='stats')
+    """Cached statistics for a player (only finished matches count)."""
+
+    player = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="stats")
     total_matches = models.IntegerField(default=0)
     wins = models.IntegerField(default=0)
     highest_break = models.IntegerField(default=0)
     total_centuries = models.IntegerField(default=0)
     last_updated = models.DateTimeField(auto_now=True)
-    
+
     def __str__(self):
         return f"Stats for {self.player.username}"
-    
+
+    @property
+    def win_rate(self):
+        return round(100 * self.wins / self.total_matches) if self.total_matches else 0
+
     def update_stats(self):
-        """
-        Update player statistics based on match history
-        """
+        """Recalculate from finished matches. A century is any single break of 100+."""
         from matches.models import MatchPlayer, PottingSequence
-        
-        # Get all matches the player has participated in
-        player_matches = MatchPlayer.objects.filter(player=self.player)
-        
-        # Total matches
-        self.total_matches = player_matches.count()
-        
-        # Wins
-        self.wins = player_matches.filter(is_winner=True).count()
-        
-        # Highest break
-        highest_break = player_matches.aggregate(max_break=Max('highest_break'))
-        self.highest_break = highest_break['max_break'] or 0
-        
-        # Total centuries
-        # A century is when a continuous sequence of pots adds up to 100 or more
-        # This is simplified and would need refinement in a real app
-        self.total_centuries = player_matches.filter(highest_break__gte=100).count()
-        
+
+        finished = MatchPlayer.objects.filter(player=self.player, match__is_active=False)
+        sequences = PottingSequence.objects.filter(match_player__in=finished)
+
+        self.total_matches = finished.count()
+        self.wins = finished.filter(is_winner=True).count()
+        self.highest_break = max(sequences.aggregate(best=Max("potted_balls"))["best"] or 0, 0)
+        self.total_centuries = sequences.filter(potted_balls__gte=100).count()
         self.save()
 
+
 class PlayerVsPlayerStats(models.Model):
-    """
-    Model for storing head-to-head statistics between players
-    """
-    player1 = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='stats_as_player1')
-    player2 = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='stats_as_player2')
+    """Head-to-head record. player1 always has the lower user id (see get_for)."""
+
+    player1 = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="stats_as_player1")
+    player2 = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="stats_as_player2")
     player1_wins = models.IntegerField(default=0)
     player2_wins = models.IntegerField(default=0)
     total_matches = models.IntegerField(default=0)
     last_updated = models.DateTimeField(auto_now=True)
-    
+
     def __str__(self):
         return f"{self.player1.username} vs {self.player2.username}"
-    
+
     class Meta:
-        unique_together = ['player1', 'player2']
+        unique_together = ["player1", "player2"]
         verbose_name = "Player vs Player Stats"
         verbose_name_plural = "Player vs Player Stats"
-    
+
+    @property
+    def draws(self):
+        return max(self.total_matches - self.player1_wins - self.player2_wins, 0)
+
+    @classmethod
+    def get_for(cls, user_a, user_b):
+        """Fetch (or create) the single record for a pair, whatever order the users are given in."""
+        first, second = (user_a, user_b) if user_a.id < user_b.id else (user_b, user_a)
+        record, _ = cls.objects.get_or_create(player1=first, player2=second)
+        return record
+
     def update_stats(self):
-        """
-        Update head-to-head statistics based on match history
-        """
+        """Recalculate this record in place from finished matches both players took part in."""
         from matches.models import Match, MatchPlayer
 
-        # Ensure consistent ordering of player1 and player2
-        player1, player2 = sorted([self.player1, self.player2], key=lambda p: p.id)
+        shared = (
+            Match.objects.filter(is_active=False, players__player=self.player1)
+            .filter(players__player=self.player2)
+            .distinct()
+        )
+        rows = MatchPlayer.objects.filter(match__in=shared, player__in=[self.player1_id, self.player2_id], is_winner=True)
 
-        # Find the record, creating it if it doesn't exist.
-        record, created = type(self).objects.get_or_create(player1=player1, player2=player2)
-
-        # Find all matches where both players participated
-        matches_with_both_players = Match.objects.filter(
-            players__player=player1
-        ).filter(
-            players__player=player2
-        ).distinct()
-
-        record.total_matches = matches_with_both_players.count()
-        record.player1_wins = 0
-        record.player2_wins = 0  # Reset before counting
-
-        for match in matches_with_both_players:
-            player1_match = MatchPlayer.objects.filter(match=match, player=player1).first()
-            player2_match = MatchPlayer.objects.filter(match=match, player=player2).first()
-
-            if player1_match and player1_match.is_winner:
-                record.player1_wins += 1
-            elif player2_match and player2_match.is_winner:
-                record.player2_wins += 1
-
-        record.save()  # Save the updated record
+        self.total_matches = shared.count()
+        self.player1_wins = rows.filter(player_id=self.player1_id).count()
+        self.player2_wins = rows.filter(player_id=self.player2_id).count()
+        self.save()

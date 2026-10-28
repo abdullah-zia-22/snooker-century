@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Leaderboard | Snooker Century{% endblock %}
+
+{% block content %}
+<div class="container container-narrow page">
+  <div class="page-head">
+    <div>
+      <div class="eyebrow">Rankings</div>
+      <h1>Leaderboard</h1>
+      <p>Ranked by wins, then centuries and highest break.</p>
+    </div>
+  </div>
+
+  {% if stats %}
+    {% if stats|length >= 3 %}
+    <div class="podium" aria-label="Top three players">
+      {% with a=stats.1 b=stats.0 c=stats.2 %}
+      <a class="slot" href="{% url 'player_stats' a.player.username %}">
+        {% include "partials/avatar.html" with u=a.player size="avatar-lg" %}
+        <div class="nm">{{ a.player.display_name }}</div><div class="rank rank-2 mx-auto my-1">2</div><div class="big">{{ a.wins }}</div><div class="sub">wins</div>
+      </a>
+      <a class="slot first" href="{% url 'player_stats' b.player.username %}">
+        {% include "partials/avatar.html" with u=b.player size="avatar-xl" %}
+        <div class="nm">{{ b.player.display_name }}</div><div class="rank rank-1 mx-auto my-1">1</div><div class="big">{{ b.wins }}</div><div class="sub">wins</div>
+      </a>
+      <a class="slot" href="{% url 'player_stats' c.player.username %}">
+        {% include "partials/avatar.html" with u=c.player size="avatar-lg" %}
+        <div class="nm">{{ c.player.display_name }}</div><div class="rank rank-3 mx-auto my-1">3</div><div class="big">{{ c.wins }}</div><div class="sub">wins</div>
+      </a>
+      {% endwith %}
+    </div>
+    {% endif %}
+
+    <div class="panel panel-flush">
+      <div class="table-responsive">
+        <table class="table table-modern">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Player</th>
+              <th scope="col" class="num d-none d-sm-table-cell">Played</th>
+              <th scope="col" class="num">Wins</th>
+              <th scope="col" class="num d-none d-sm-table-cell">Win %</th>
+              <th scope="col" class="num">Best</th>
+              <th scope="col" class="num">100s</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in stats %}
+            <tr {% if s.player_id == user.id %}style="background: var(--red-soft)"{% endif %}>
+              <td><span class="rank {% if forloop.counter <= 3 %}rank-{{ forloop.counter }}{% endif %}">{{ forloop.counter }}</span></td>
+              <td>
+                <a href="{% url 'player_stats' s.player.username %}" class="d-flex align-items-center gap-2 text-reset fw-bold">
+                  {% include "partials/avatar.html" with u=s.player size="avatar-sm" %}
+                  <span class="text-truncate name-cell">{{ s.player.display_name }}</span>
+                </a>
+              </td>
+              <td class="num d-none d-sm-table-cell">{{ s.total_matches }}</td>
+              <td class="num fw-bold">{{ s.wins }}</td>
+              <td class="num d-none d-sm-table-cell">{{ s.win_rate }}%</td>
+              <td class="num">{{ s.highest_break }}</td>
+              <td class="num">{{ s.total_centuries }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% else %}
+    <div class="panel"><div class="empty"><i class="bi bi-trophy"></i><h3>No players ranked yet</h3><p class="mb-0">Finish a match and the leaderboard will fill up.</p></div></div>
+  {% endif %}
+</div>
+{% endblock %}

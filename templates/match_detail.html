@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}{{ match.title }} | Snooker Century{% endblock %}
+
+{% block content %}
+<div class="container container-narrow page">
+  <a href="{% url 'match_list' %}" class="small fw-bold d-inline-flex align-items-center gap-1 mb-3"><i class="bi bi-arrow-left"></i> All matches</a>
+
+  <div class="page-head">
+    <div>
+      <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+        {% if match.is_active %}<span class="chip chip-live">Live</span>{% else %}<span class="chip chip-lost">Finished</span>{% endif %}
+      </div>
+      <h1>{{ match.title }}</h1>
+      <p>{{ match.date|date:"l j F Y, g:i a" }}{% if match.location %} · <i class="bi bi-geo-alt"></i> {{ match.location }}{% endif %}</p>
+    </div>
+  </div>
+
+  {% if not match.is_active %}
+    {% if winner %}
+    <div class="banner banner-win" role="status"><i class="bi bi-trophy-fill"></i><div>{{ winner.player.display_name }} wins with {{ winner.live_total }} points!</div></div>
+    {% elif is_draw %}
+    <div class="banner banner-draw" role="status"><i class="bi bi-hand-thumbs-up-fill"></i><div>The match ended in a draw.</div></div>
+    {% endif %}
+  {% endif %}
+
+  {% if match.notes %}<p class="text-muted">{{ match.notes|linebreaksbr }}</p>{% endif %}
+
+  <section aria-label="Scoreboard">
+    <div class="scoreboard {% if match_players|length == 2 %}cols-2{% endif %}">
+      {% for mp in match_players %}
+      <article class="score-card {% if mp.is_winner %}winner{% elif mp.id == leader_id %}leading{% endif %}">
+        <div class="score-top">
+          {% include "partials/avatar.html" with u=mp.player size="avatar-lg" %}
+          <div class="grow">
+            <div class="score-name">{{ mp.player.display_name }}{% if mp.is_winner %} <i class="bi bi-trophy-fill text-warning"></i>{% endif %}</div>
+            <div class="score-meta">
+              {% if mp.live_best %}Best break {{ mp.live_best }}{% else %}No breaks yet{% endif %}
+              {% if mp.century_count %} · {{ mp.century_count }} 💯{% endif %}
+            </div>
+          </div>
+          <div class="score-total {% if mp.live_total < 0 %}neg{% endif %}" aria-label="Total {{ mp.live_total }}">{{ mp.live_total }}</div>
+        </div>
+        {% if mp.sequences %}
+        <div class="breaks" aria-label="Breaks">
+          {% for s in mp.sequences %}<span class="brk {% if s.potted_balls < 0 %}neg{% elif s.potted_balls >= 100 %}century{% endif %}" title="Entry {{ s.sequence_number }}">{{ s.potted_balls }}</span>{% endfor %}
+        </div>
+        {% endif %}
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  {% if match.is_active %}
+    {% if is_creator %}
+    <section class="panel mt-4" aria-labelledby="entry-h">
+      <h2 class="panel-title" id="entry-h">Add a break</h2>
+      <form method="post" action="{% url 'match_detail' match.id %}" data-once>
+        {% csrf_token %}
+        <fieldset class="field border-0 p-0">
+          <legend class="form-label">Who scored?</legend>
+          <div class="entry-pick">
+            {% for mp in match_players %}
+            <label>
+              <input type="radio" name="player_id" value="{{ mp.player.id }}" required>
+              <span class="opt">{% include "partials/avatar.html" with u=mp.player size="avatar-sm" %}<span class="text-truncate">{{ mp.player.display_name }}</span></span>
+            </label>
+            {% endfor %}
+          </div>
+        </fieldset>
+        <div class="field">
+          <label class="form-label" for="id_potted_balls">Points scored</label>
+          <input type="number" inputmode="numeric" pattern="-?[0-9]*" name="potted_balls" id="id_potted_balls" class="form-control big-input" min="-147" max="147" step="1" placeholder="0" required>
+          <div class="quick" aria-label="Quick values">
+            <button type="button" data-fill="5" data-target="#id_potted_balls">5</button>
+            <button type="button" data-fill="10" data-target="#id_potted_balls">10</button>
+            <button type="button" data-fill="20" data-target="#id_potted_balls">20</button>
+            <button type="button" data-fill="30" data-target="#id_potted_balls">30</button>
+            <button type="button" data-fill="50" data-target="#id_potted_balls">50</button>
+            <button type="button" data-fill="100" data-target="#id_potted_balls">100</button>
+          </div>
+          <div class="form-text">Between −147 and 147.</div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg btn-block"><i class="bi bi-plus-lg"></i> Add to scoreboard</button>
+      </form>
+
+      <hr class="my-4">
+      <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
+        {% if last_entry %}
+        <form method="post" action="{% url 'match_undo' match.id %}" data-once>
+          {% csrf_token %}
+          <button type="submit" class="btn btn-soft btn-sm"><i class="bi bi-arrow-counterclockwise"></i> Undo {{ last_entry.potted_balls }} ({{ last_entry.match_player.player.display_name }})</button>
+        </form>
+        {% else %}<span></span>{% endif %}
+        <a href="{% url 'match_finish' match.id %}" class="btn btn-dark"><i class="bi bi-flag-fill"></i> Finish match</a>
+      </div>
+    </section>
+    {% else %}
+    <div class="alert alert-info mt-4"><i class="bi bi-info-circle-fill"></i><div>{{ match.created_by.display_name }} is keeping score for this match.</div></div>
+    {% endif %}
+  {% else %}
+    <div class="d-flex flex-wrap gap-2 mt-4">
+      <a href="{% url 'leaderboard' %}" class="btn btn-soft"><i class="bi bi-trophy"></i> Leaderboard</a>
+      <a href="{% url 'match_create' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Play again</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

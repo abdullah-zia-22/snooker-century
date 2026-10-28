@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ player1.display_name }} vs {{ player2.display_name }} | Snooker Century{% endblock %}
+
+{% block content %}
+<div class="container container-narrow page">
+  <div class="page-head">
+    <div><div class="eyebrow">Head-to-head</div><h1>{{ player1.display_name }} vs {{ player2.display_name }}</h1></div>
+  </div>
+
+  <section class="panel" aria-label="Record">
+    <div class="vs">
+      <a class="who" href="{% url 'player_stats' player1.username %}">{% include "partials/avatar.html" with u=player1 size="avatar-xl" %}<span>{{ player1.display_name }}</span></a>
+      <div class="score" aria-label="{{ wins1 }} to {{ wins2 }}">{{ wins1 }} – {{ wins2 }}</div>
+      <a class="who" href="{% url 'player_stats' player2.username %}">{% include "partials/avatar.html" with u=player2 size="avatar-xl" %}<span>{{ player2.display_name }}</span></a>
+    </div>
+    {% if stats.total_matches %}
+    <div class="bar mt-4" role="img" aria-label="Win share"><i class="a" style="width: {{ pct1 }}%"></i><i class="b" style="width: {{ pct2 }}%; margin-left: auto"></i></div>
+    <div class="text-center text-muted small mt-2">{{ stats.total_matches }} finished match{{ stats.total_matches|pluralize:"es" }}{% if draws %} · {{ draws }} draw{{ draws|pluralize }}{% endif %}</div>
+    {% endif %}
+  </section>
+
+  <section class="panel">
+    <h2 class="panel-title">Matches together</h2>
+    {% if rows %}
+    <ul class="rows">
+      {% for row in rows %}
+      <li>
+        {% if row.can_open %}<a class="row-item" href="{% url 'match_detail' row.match.id %}">{% else %}<div class="row-item">{% endif %}
+          <div class="grow"><div class="t">{{ row.match.title }}</div><div class="s">{{ row.match.date|date:"D j M Y" }}</div></div>
+          {% if row.match.is_active %}<span class="chip chip-live">Live</span>
+          {% elif row.winner %}<span class="chip chip-won"><i class="bi bi-trophy-fill"></i> {{ row.winner.display_name }}</span>
+          {% else %}<span class="chip chip-draw">Draw</span>{% endif %}
+        {% if row.can_open %}</a>{% else %}</div>{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="empty"><i class="bi bi-flag"></i><p class="mb-0">These players haven't met yet.</p></div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

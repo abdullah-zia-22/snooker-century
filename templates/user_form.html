@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} | Snooker Century Admin{% endblock %}
+
+{% block content %}
+<div class="container container-form page">
+  <a href="{% url 'admin_user_list' %}" class="small fw-bold d-inline-flex align-items-center gap-1 mb-3"><i class="bi bi-arrow-left"></i> Back to players</a>
+  <div class="page-head">
+    <div><div class="eyebrow">Administration</div><h1>{{ title }}</h1><p>{% if is_create %}Add a new player account.{% else %}Update details for @{{ target_user.username }}.{% endif %}</p></div>
+    {% if not is_create %}{% include "partials/avatar.html" with u=target_user size="avatar-xl" %}{% endif %}
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="panel" novalidate data-once>
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="alert alert-danger"><i class="bi bi-exclamation-triangle-fill"></i><div>{{ form.non_field_errors.0 }}</div></div>{% endif %}
+
+    <div class="row g-3">
+      <div class="col-sm-6">{% include "partials/field.html" with field=form.first_name %}</div>
+      <div class="col-sm-6">{% include "partials/field.html" with field=form.last_name %}</div>
+    </div>
+    {% include "partials/field.html" with field=form.username %}
+    {% include "partials/field.html" with field=form.email %}
+    {% if is_create %}
+      {% include "partials/field.html" with field=form.password1 %}
+      {% include "partials/field.html" with field=form.password2 %}
+    {% endif %}
+    {% include "partials/field.html" with field=form.bio %}
+    {% include "partials/field.html" with field=form.profile_picture %}
+    {% if not is_create %}
+      {% include "partials/field.html" with field=form.is_active %}
+      {% if form.is_active.field.disabled %}<div class="form-text mb-3">You can't deactivate your own account.</div>{% endif %}
+    {% endif %}
+
+    <div class="form-actions">
+      <a href="{% url 'admin_user_list' %}" class="btn btn-soft">Cancel</a>
+      <button type="submit" class="btn btn-primary">{% if is_create %}Create player{% else %}Save changes{% endif %}</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

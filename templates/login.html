@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Log in | Snooker Century{% endblock %}
+
+{% block content %}
+<div class="auth">
+  <aside class="auth-aside">
+    <div class="eyebrow">Welcome back</div>
+    <h2>Pick up your cue where you left off.</h2>
+    <p>Your matches, breaks and rivalries are waiting.</p>
+    <ul>
+      <li><i class="bi bi-list-check"></i> Keep score break by break</li>
+      <li><i class="bi bi-trophy-fill"></i> Track every century you make</li>
+      <li><i class="bi bi-people-fill"></i> Settle head-to-head arguments</li>
+    </ul>
+  </aside>
+
+  <div class="auth-main">
+    <div class="auth-card">
+      <h1 class="mb-1">Log in</h1>
+      <p class="text-muted mb-4">Enter your details to access your account.</p>
+
+      <form method="post" action="{% url 'login' %}" novalidate data-once>
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger" role="alert"><i class="bi bi-exclamation-triangle-fill"></i><div>{{ form.non_field_errors.0 }}</div></div>
+        {% endif %}
+
+        {% include "partials/field.html" with field=form.username %}
+        {% include "partials/field.html" with field=form.password %}
+        {% include "partials/field.html" with field=form.remember_me %}
+
+        <button type="submit" class="btn btn-primary btn-lg btn-block mt-2">Log in</button>
+      </form>
+
+      <div class="divider">New here?</div>
+      <a href="{% url 'sign_up' %}" class="btn btn-soft btn-block"><i class="bi bi-person-plus"></i> Create an account</a>
+      <p class="text-center text-muted small mt-4 mb-0">Forgot your password? Ask a club administrator to reset it.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

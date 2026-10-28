@@ -2,7 +2,11 @@
     "builds": [{
       "src": "snooker_century/wsgi.py",
       "use": "@vercel/python",
-      "config": { "maxLambdaSize": "15mb", "runtime": "python3.11.5" }
+      "config": {
+        "maxLambdaSize": "15mb",
+        "runtime": "python3.11.5",
+        "includeFiles": "media/profile_pics/**"
+      }
     }],
     "routes": [
       {

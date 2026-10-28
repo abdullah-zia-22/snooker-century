@@ -1,0 +1,4 @@
+{% if result == "live" %}<span class="chip chip-live">Live</span>
+{% elif result == "won" %}<span class="chip chip-won"><i class="bi bi-trophy-fill"></i> Won</span>
+{% elif result == "lost" %}<span class="chip chip-lost">Lost</span>
+{% else %}<span class="chip chip-draw">Draw</span>{% endif %}

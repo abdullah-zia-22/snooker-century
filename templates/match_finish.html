@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Finish {{ match.title }} | Snooker Century{% endblock %}
+
+{% block content %}
+<div class="container container-form page">
+  <div class="page-head">
+    <div>
+      <div class="eyebrow">Finish match</div>
+      <h1>{{ match.title }}</h1>
+      <p>Check the final scores. The player with the most points wins; equal scores are a draw.</p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2 class="panel-title">Final scores</h2>
+    <ul class="rows">
+      {% for mp in match_players %}
+      <li class="row-item">
+        {% include "partials/avatar.html" with u=mp.player size="" %}
+        <div class="grow"><div class="t">{{ mp.player.display_name }}</div><div class="s">{% if mp.live_best %}Best break {{ mp.live_best }}{% else %}No breaks{% endif %}</div></div>
+        <div class="fs-3 fw-bold tabular">{{ mp.live_total }}</div>
+      </li>
+      {% endfor %}
+    </ul>
+
+    <div class="alert alert-warning mt-3 mb-0"><i class="bi bi-exclamation-triangle-fill"></i><div>Once finished, scores are locked and everyone's stats are updated.</div></div>
+
+    <form method="post" data-once>
+      {% csrf_token %}
+      <div class="form-actions">
+        <a href="{% url 'match_detail' match.id %}" class="btn btn-soft">Keep playing</a>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-flag-fill"></i> Finish match</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

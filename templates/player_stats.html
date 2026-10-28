@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}{{ player.display_name }} — Stats | Snooker Century{% endblock %}
+
+{% block content %}
+<div class="container container-narrow page">
+  <div class="page-head">
+    <div class="profile-hero">
+      {% include "partials/avatar.html" with u=player size="avatar-xl" %}
+      <div>
+        <div class="eyebrow">{% if is_self %}My statistics{% else %}Player profile{% endif %}</div>
+        <h1>{{ player.display_name }}</h1>
+        <div class="text-muted">@{{ player.username }}</div>
+      </div>
+    </div>
+    {% if not is_self and not user.is_site_admin %}
+    <div class="page-actions"><a href="{% url 'player_vs_player' user.username player.username %}" class="btn btn-soft"><i class="bi bi-people"></i> Head-to-head with you</a></div>
+    {% endif %}
+  </div>
+
+  {% if player.bio %}<p class="text-muted">{{ player.bio|linebreaksbr }}</p>{% endif %}
+
+  <div class="kpis mb-4">
+    <div class="kpi"><div class="kpi-icon"><i class="bi bi-flag-fill"></i></div><div class="kpi-value">{{ stats.total_matches }}</div><div class="kpi-label">Matches</div></div>
+    <div class="kpi k-green"><div class="kpi-icon"><i class="bi bi-trophy-fill"></i></div><div class="kpi-value">{{ stats.wins }}</div><div class="kpi-label">Wins · {{ stats.win_rate }}%</div></div>
+    <div class="kpi k-gold"><div class="kpi-icon"><i class="bi bi-lightning-charge-fill"></i></div><div class="kpi-value">{{ stats.total_centuries }}</div><div class="kpi-label">Centuries</div></div>
+    <div class="kpi k-navy"><div class="kpi-icon"><i class="bi bi-bullseye"></i></div><div class="kpi-value">{{ stats.highest_break }}</div><div class="kpi-label">Highest break</div></div>
+  </div>
+
+  <section class="panel" aria-labelledby="h2h-h">
+    <h2 class="panel-title" id="h2h-h">Head-to-head</h2>
+    {% if rivalries %}
+    <ul class="rows">
+      {% for r in rivalries %}
+      <li>
+        <a class="row-item" href="{% url 'player_vs_player' player.username r.opponent.username %}">
+          {% include "partials/avatar.html" with u=r.opponent size="avatar-sm" %}
+          <div class="grow"><div class="t">vs {{ r.opponent.display_name }}</div><div class="s">{{ r.record.total_matches }} match{{ r.record.total_matches|pluralize:"es" }}</div></div>
+          <div class="fw-bold tabular fs-5">{{ r.mine }} – {{ r.theirs }}</div>
+          <i class="bi bi-chevron-right text-muted"></i>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="empty"><i class="bi bi-people"></i><p class="mb-0">No finished head-to-head matches yet.</p></div>
+    {% endif %}
+  </section>
+
+  <section class="panel" aria-labelledby="rm-h">
+    <h2 class="panel-title" id="rm-h">Recent matches</h2>
+    {% if recent_matches %}
+    <ul class="rows">
+      {% for row in recent_matches %}
+      <li class="row-item">
+        <div class="grow"><div class="t">{{ row.match.title }}</div><div class="s">{{ row.match.date|date:"D j M Y" }}</div></div>
+        {% include "partials/result_chip.html" with result=row.result %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="empty"><i class="bi bi-flag"></i><p class="mb-0">No matches yet.</p></div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

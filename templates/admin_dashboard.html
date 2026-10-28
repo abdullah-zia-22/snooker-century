@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Admin | Snooker Century{% endblock %}
+
+{% block content %}
+<div class="container page">
+  <div class="admin-strip">
+    <div><div class="eyebrow" style="color:#ff8a8f">Administration</div><h1>Admin dashboard</h1><p>Manage players and keep the club running smoothly.</p></div>
+    <a href="{% url 'admin_user_create' %}" class="btn btn-primary"><i class="bi bi-person-plus"></i> Add player</a>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-4"><div class="kpi k-navy"><div class="kpi-icon"><i class="bi bi-people-fill"></i></div><div class="kpi-value">{{ total_users }}</div><div class="kpi-label">Total accounts</div></div></div>
+    <div class="col-6 col-md-4"><div class="kpi k-green"><div class="kpi-icon"><i class="bi bi-person-check-fill"></i></div><div class="kpi-value">{{ active_users }}</div><div class="kpi-label">Active players</div></div></div>
+    <div class="col-12 col-md-4"><div class="kpi"><div class="kpi-icon"><i class="bi bi-shield-fill-check"></i></div><div class="kpi-value">{{ admin_users }}</div><div class="kpi-label">Administrators</div></div></div>
+  </div>
+
+  <div class="row g-3 g-lg-4">
+    <div class="col-lg-8">
+      <section class="panel panel-flush">
+        <h2 class="panel-title">Recently joined <a class="small fw-bold" href="{% url 'admin_user_list' %}">Manage all</a></h2>
+        <div class="table-responsive mt-3">
+          <table class="table table-modern table-stack">
+            <thead><tr><th>Player</th><th>Email</th><th>Joined</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              {% for u in recent_users %}
+              <tr>
+                <td class="cell-main"><div class="d-flex align-items-center gap-2">{% include "partials/avatar.html" with u=u size="avatar-sm" %}<div><div class="fw-bold">{{ u.display_name }}</div><div class="small text-muted">@{{ u.username }}</div></div></div></td>
+                <td data-label="Email">{{ u.email|default:"—" }}</td>
+                <td data-label="Joined">{{ u.date_joined|date:"M j, Y" }}</td>
+                <td data-label="Status">{% if u.is_superuser or u.is_admin %}<span class="chip chip-admin">Admin</span>{% elif u.is_active %}<span class="chip chip-won">Active</span>{% else %}<span class="chip chip-off">Inactive</span>{% endif %}</td>
+                <td class="cell-actions text-end"><a href="{% url 'admin_user_edit' u.id %}" class="btn btn-soft btn-sm"><i class="bi bi-pencil"></i> Edit</a></td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="5" class="text-center text-muted py-4">No other accounts yet.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+    <div class="col-lg-4">
+      <section class="panel">
+        <h2 class="panel-title">Quick actions</h2>
+        <div class="actions">
+          <a class="action" href="{% url 'admin_user_create' %}"><i class="bi bi-person-plus"></i> Add new player <i class="bi bi-chevron-right chev"></i></a>
+          <a class="action" href="{% url 'admin_user_list' %}"><i class="bi bi-people"></i> Manage players <i class="bi bi-chevron-right chev"></i></a>
+          <a class="action" href="{% url 'leaderboard' %}"><i class="bi bi-trophy"></i> View leaderboard <i class="bi bi-chevron-right chev"></i></a>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+{% endblock %}

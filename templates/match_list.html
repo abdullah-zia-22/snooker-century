@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Matches | Snooker Century{% endblock %}
+
+{% block content %}
+<div class="container container-narrow page">
+  <div class="page-head">
+    <div>
+      <div class="eyebrow">Matches</div>
+      <h1>My matches</h1>
+      <p>Every match you're taking part in.</p>
+    </div>
+    <div class="page-actions"><a href="{% url 'match_create' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New match</a></div>
+  </div>
+
+  <div class="seg mb-3" role="tablist" aria-label="Filter matches">
+    <a href="{% url 'match_list' %}" class="{% if not status %}active{% endif %}">All</a>
+    <a href="?status=live" class="{% if status == 'live' %}active{% endif %}">Live</a>
+    <a href="?status=finished" class="{% if status == 'finished' %}active{% endif %}">Finished</a>
+  </div>
+
+  <div class="panel">
+    {% if rows %}
+    <ul class="rows">
+      {% for row in rows %}
+      <li>
+        <a class="row-item" href="{% url 'match_detail' row.match.id %}">
+          <div class="grow">
+            <div class="t">{{ row.match.title }}</div>
+            <div class="s">{{ row.match.date|date:"D j M Y, g:i a" }}{% if row.match.location %} · {{ row.match.location }}{% endif %}</div>
+            {% if row.others %}<div class="s">vs {% for p in row.others %}{{ p.display_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>{% endif %}
+          </div>
+          {% include "partials/result_chip.html" with result=row.result %}
+          <i class="bi bi-chevron-right text-muted"></i>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="empty">
+      <i class="bi bi-flag"></i>
+      <h3>{% if status %}Nothing here{% else %}No matches yet{% endif %}</h3>
+      <p class="mb-3">{% if status %}No {{ status }} matches to show.{% else %}You're not part of any match yet. Start one and invite your opponents.{% endif %}</p>
+      <a href="{% url 'match_create' %}" class="btn btn-primary">Create a match</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

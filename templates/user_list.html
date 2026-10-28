@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Players | Snooker Century Admin{% endblock %}
+
+{% block content %}
+<div class="container page">
+  <div class="page-head">
+    <div><div class="eyebrow">Administration</div><h1>Players</h1><p>View, add, edit and remove player accounts.</p></div>
+    <div class="page-actions">
+      <a href="{% url 'admin_dashboard' %}" class="btn btn-soft"><i class="bi bi-arrow-left"></i> Dashboard</a>
+      <a href="{% url 'admin_user_create' %}" class="btn btn-primary"><i class="bi bi-person-plus"></i> Add player</a>
+    </div>
+  </div>
+
+  <form method="get" class="panel filters mb-3" role="search">
+    <input type="search" name="search" placeholder="Search name, username or email" class="form-control" value="{{ search_query }}" aria-label="Search players">
+    <select name="status" class="form-select" aria-label="Status">
+      <option value="">All statuses</option>
+      <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+      <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+      <option value="admin" {% if status == 'admin' %}selected{% endif %}>Admins</option>
+    </select>
+    <select name="sort" class="form-select" aria-label="Sort">
+      <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest first</option>
+      <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Oldest first</option>
+      <option value="username" {% if sort == 'username' %}selected{% endif %}>Username A–Z</option>
+    </select>
+    <button type="submit" class="btn btn-dark"><i class="bi bi-funnel"></i> Filter</button>
+  </form>
+
+  <section class="panel panel-flush">
+    <h2 class="panel-title">Accounts <small>{{ total_count }} total</small></h2>
+    <div class="table-responsive mt-3">
+      <table class="table table-modern table-stack">
+        <thead><tr><th>Player</th><th>Email</th><th>Status</th><th>Joined</th><th>Last login</th><th class="text-end">Actions</th></tr></thead>
+        <tbody>
+          {% for u in users %}
+          <tr>
+            <td class="cell-main"><div class="d-flex align-items-center gap-2">{% include "partials/avatar.html" with u=u size="" %}<div><div class="fw-bold">{{ u.display_name }}</div><div class="small text-muted">@{{ u.username }}</div></div></div></td>
+            <td data-label="Email">{{ u.email|default:"—" }}</td>
+            <td data-label="Status">{% if u.is_superuser or u.is_admin %}<span class="chip chip-admin">Admin</span>{% elif u.is_active %}<span class="chip chip-won">Active</span>{% else %}<span class="chip chip-off">Inactive</span>{% endif %}</td>
+            <td data-label="Joined">{{ u.date_joined|date:"M j, Y" }}</td>
+            <td data-label="Last login">{% if u.last_login %}{{ u.last_login|date:"M j, Y" }}{% else %}<span class="text-muted">Never</span>{% endif %}</td>
+            <td class="cell-actions text-end">
+              <a href="{% url 'admin_user_edit' u.id %}" class="btn btn-soft btn-sm"><i class="bi bi-pencil"></i> Edit</a>
+              <a href="{% url 'admin_user_delete' u.id %}" class="btn btn-danger-soft btn-sm"><i class="bi bi-trash"></i> Remove</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6"><div class="empty"><i class="bi bi-search"></i><h3>No players found</h3><p class="mb-0">Try a different search or filter.</p></div></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="pager" aria-label="Pagination">
+      <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      <span class="d-flex gap-2">
+        {% if page_obj.has_previous %}<a class="btn btn-soft btn-sm" href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.previous_page_number }}"><i class="bi bi-chevron-left"></i> Prev</a>{% endif %}
+        {% if page_obj.has_next %}<a class="btn btn-soft btn-sm" href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.next_page_number }}">Next <i class="bi bi-chevron-right"></i></a>{% endif %}
+      </span>
+    </nav>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}
