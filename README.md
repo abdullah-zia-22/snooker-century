@@ -10,8 +10,11 @@ cp .env.example .env        # DEBUG=True, uses a local SQLite file
 python manage.py migrate
 python manage.py createsuperuser
 python manage.py runserver
-python manage.py test       # 42 tests
+python manage.py test
 ```
+
+With JavaScript enabled, internal navigation and form submissions use AJAX, so pages update without a full reload.
+Forms continue to work with JavaScript disabled.
 
 ## Deploying on Vercel
 Set these environment variables in the project settings:

@@ -49,6 +49,38 @@ class MatchFlowTests(TestCase):
         self.assertEqual(mp.total_score, 75)
         self.assertEqual(mp.highest_break, 45)  # was previously the sum of the last two entries (55)
 
+    def test_ajax_score_submission_returns_updated_score_data(self):
+        match = self.create_match()
+        response = self.client.post(
+            reverse("match_detail", args=[match.id]),
+            {"player_id": self.alice.id, "potted_balls": 42},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json(),
+            {
+                "success": True,
+                "player": "alice",
+                "potted_balls": 42,
+                "sequence_number": 1,
+                "total_score": 42,
+            },
+        )
+
+    def test_ajax_score_submission_returns_validation_error(self):
+        match = self.create_match()
+        response = self.client.post(
+            reverse("match_detail", args=[match.id]),
+            {"player_id": self.alice.id, "potted_balls": 148},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(), {"success": False, "error": "Score cannot exceed 147 (the maximum break)."})
+        self.assertFalse(PottingSequence.objects.exists())
+
     def test_negative_entries_reduce_total_but_not_highest_break(self):
         match = self.create_match()
         add_sequence(match, self.alice.id, 30)
