@@ -10,9 +10,11 @@ from django.db.models import Max, Q, Sum, Value
 from django.db.models.functions import Coalesce
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.cache import patch_cache_control
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
+from .cache import get_landing_page_data
 from matches.models import Match, MatchPlayer, PottingSequence
 from matches.services import result_for
 from stats.models import PlayerStats
@@ -69,7 +71,9 @@ def serve_profile_picture(request, filename):
     image_path = (profile_pictures / filename).resolve()
     if image_path.parent != profile_pictures or not image_path.is_file():
         raise Http404
-    return FileResponse(image_path.open("rb"))
+    response = FileResponse(image_path.open("rb"))
+    patch_cache_control(response, public=True, max_age=86400)
+    return response
 
 
 # ---------------------------------------------------------------------------
@@ -79,35 +83,7 @@ def landing_page(request):
     if request.user.is_authenticated:
         return redirect(home_for(request.user))
 
-    live_match = Match.objects.filter(is_active=True).order_by("-date", "-id").first()
-    live_players = []
-    if live_match:
-        live_players = list(
-            MatchPlayer.objects.filter(match=live_match)
-            .select_related("player")
-            .annotate(
-                live_total=Coalesce(Sum("potting_sequences__potted_balls"), Value(0)),
-                live_best=Coalesce(
-                    Max(
-                        "potting_sequences__potted_balls",
-                        filter=Q(potting_sequences__potted_balls__gt=0),
-                    ),
-                    Value(0),
-                ),
-            )
-        )
-        live_players.sort(key=lambda player: (-player.live_total, player.player.display_name.casefold()))
-
-    context = {
-        "player_count": User.objects.filter(is_active=True, is_staff=False, is_superuser=False, is_admin=False).count(),
-        "match_count": MatchPlayer.objects.values("match_id").distinct().count(),
-        "century_count": PottingSequence.objects.filter(
-            potted_balls__gte=100, match_player__match__is_active=False
-        ).count(),
-        "live_match": live_match,
-        "live_players": live_players,
-    }
-    return render(request, "landing.html", context)
+    return render(request, "landing.html", get_landing_page_data())
 
 
 def sign_up(request):

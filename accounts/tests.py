@@ -2,9 +2,11 @@ import tempfile
 from pathlib import Path
 
 from django.contrib.messages import get_messages
+from django.core.cache import cache
 from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 
+from .cache import LANDING_PAGE_CACHE_KEY
 from matches.models import Match, MatchPlayer
 from matches.services import add_sequence, finish_match
 from stats.models import PlayerStats
@@ -34,6 +36,10 @@ class ProfilePictureServingTests(SimpleTestCase):
                 )
 
             self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                {directive.strip() for directive in response["Cache-Control"].split(",")},
+                {"public", "max-age=86400"},
+            )
             self.assertEqual(b"".join(response.streaming_content), b"profile image")
 
     def test_missing_profile_picture_returns_404(self):
@@ -47,6 +53,9 @@ class ProfilePictureServingTests(SimpleTestCase):
 
 
 class PublicPagesTests(TestCase):
+    def setUp(self):
+        cache.delete(LANDING_PAGE_CACHE_KEY)
+
     def test_landing_page_counts_finished_centuries_and_players(self):
         a, b = make_user("alice"), make_user("bob")
         make_user("boss", is_admin=True)  # admins are not "players"
@@ -75,10 +84,10 @@ class PublicPagesTests(TestCase):
 
         response = self.client.get(reverse("home"))
 
-        self.assertEqual(response.context["live_match"], match)
+        self.assertEqual(response.context["live_match"], {"title": match.title})
         self.assertEqual(
             [
-                (player.player.display_name, player.live_total, player.live_best)
+                (player["name"], player["live_total"], player["live_best"])
                 for player in response.context["live_players"]
             ],
             [("Alice Player", 77, 42), ("Bob Player", 20, 20)],
@@ -86,6 +95,35 @@ class PublicPagesTests(TestCase):
         self.assertContains(response, "Friday final")
         self.assertContains(response, "77")
         self.assertNotContains(response, "Example scoreboard")
+
+    def test_landing_page_data_is_cached_and_invalidated_by_new_match(self):
+        first_response = self.client.get(reverse("home"))
+        self.assertEqual(first_response.context["match_count"], 0)
+        self.assertIsNotNone(cache.get(LANDING_PAGE_CACHE_KEY))
+
+        alice, bob = make_user("alice"), make_user("bob")
+        match = Match.objects.create(title="Cached frame", created_by=alice)
+        MatchPlayer.objects.bulk_create(
+            [MatchPlayer(match=match, player=alice), MatchPlayer(match=match, player=bob)]
+        )
+
+        refreshed_response = self.client.get(reverse("home"))
+        self.assertEqual(refreshed_response.context["match_count"], 1)
+        self.assertEqual(refreshed_response.context["player_count"], 2)
+
+    def test_scoring_invalidates_cached_landing_page(self):
+        alice, bob = make_user("alice"), make_user("bob")
+        match = Match.objects.create(title="Live frame", created_by=alice)
+        MatchPlayer.objects.bulk_create(
+            [MatchPlayer(match=match, player=alice), MatchPlayer(match=match, player=bob)]
+        )
+        self.client.get(reverse("home"))
+        self.assertEqual(cache.get(LANDING_PAGE_CACHE_KEY)["live_players"][0]["live_total"], 0)
+
+        add_sequence(match, alice.id, 50)
+        response = self.client.get(reverse("home"))
+
+        self.assertEqual(response.context["live_players"][0]["live_total"], 50)
 
     def test_landing_redirects_logged_in_users_consistently(self):
         make_user("staffer", is_staff=True)  # staff flag alone must NOT send you to the admin portal

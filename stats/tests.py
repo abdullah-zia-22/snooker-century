@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.test import TestCase
 from django.urls import reverse
 
@@ -5,6 +6,7 @@ from accounts.models import User
 from matches.models import Match, MatchPlayer
 from matches.services import add_sequence, finish_match
 
+from .cache import LEADERBOARD_CACHE_KEY
 from .models import PlayerStats, PlayerVsPlayerStats
 
 PASSWORD = "S3cure-pass-Word!"
@@ -72,6 +74,9 @@ class StatsTests(TestCase):
 
 
 class LeaderboardTests(TestCase):
+    def setUp(self):
+        cache.delete(LEADERBOARD_CACHE_KEY)
+
     def test_excludes_admins_and_inactive_and_includes_new_players(self):
         alice, bob = make_user("alice"), make_user("bob")
         make_user("boss", is_admin=True)
@@ -85,6 +90,21 @@ class LeaderboardTests(TestCase):
         names = [s.player.username for s in stats]
         self.assertEqual(names[0], "alice")
         self.assertCountEqual(names, ["alice", "bob", newbie.username])
+
+    def test_stats_save_invalidates_cached_leaderboard(self):
+        alice = make_user("alice")
+        self.client.login(username="alice", password=PASSWORD)
+
+        first_response = self.client.get(reverse("leaderboard"))
+        self.assertIsNotNone(cache.get(LEADERBOARD_CACHE_KEY))
+        self.assertEqual(first_response.context["stats"][0].wins, 0)
+
+        stats = PlayerStats.objects.get(player=alice)
+        stats.wins = 3
+        stats.save()
+
+        refreshed_response = self.client.get(reverse("leaderboard"))
+        self.assertEqual(refreshed_response.context["stats"][0].wins, 3)
 
     def test_requires_login(self):
         self.assertEqual(self.client.get(reverse("leaderboard")).status_code, 302)

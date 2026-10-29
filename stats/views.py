@@ -6,6 +6,7 @@ from accounts.models import User
 from matches.models import Match, MatchPlayer
 from matches.services import result_for
 
+from .cache import get_leaderboard_stats
 from .models import PlayerStats, PlayerVsPlayerStats
 
 
@@ -99,15 +100,4 @@ def player_vs_player(request, username1, username2):
 @login_required
 def leaderboard(request):
     """Ranking of all active, non-admin players."""
-    players = User.objects.filter(is_active=True, is_superuser=False, is_admin=False)
-
-    # Make sure everyone has a stats row so new players appear on the board straight away.
-    missing = players.filter(stats__isnull=True)
-    PlayerStats.objects.bulk_create([PlayerStats(player=u) for u in missing])
-
-    stats = (
-        PlayerStats.objects.select_related("player")
-        .filter(player__in=players)
-        .order_by("-wins", "-total_centuries", "-highest_break", "player__username")
-    )
-    return render(request, "leaderboard.html", {"stats": list(stats)})
+    return render(request, "leaderboard.html", {"stats": get_leaderboard_stats()})

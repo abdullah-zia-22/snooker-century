@@ -153,3 +153,34 @@ from django.contrib.messages import constants as message_constants  # noqa: E402
 MESSAGE_TAGS = {message_constants.ERROR: "danger"}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# --- Cache & sessions --------------------------------------------------------
+REDIS_URL = os.getenv("REDIS_URL")
+if REDIS_URL:
+    REDIS_CACHE_OPTIONS = {"CLIENT_CLASS": "django_redis.client.DefaultClient"}
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": REDIS_URL,
+            "KEY_PREFIX": "snooker-century:cache",
+            "TIMEOUT": 300,
+            "OPTIONS": REDIS_CACHE_OPTIONS,
+        },
+        "sessions": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": os.getenv("REDIS_SESSION_URL") or REDIS_URL,
+            "KEY_PREFIX": "snooker-century:sessions",
+            "OPTIONS": REDIS_CACHE_OPTIONS,
+        },
+    }
+    SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+    SESSION_CACHE_ALIAS = "sessions"
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "snooker-century",
+            "TIMEOUT": 300,
+        }
+    }
+    SESSION_ENGINE = "django.contrib.sessions.backends.db"
